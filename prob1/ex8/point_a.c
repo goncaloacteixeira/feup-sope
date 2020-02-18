@@ -43,7 +43,8 @@ int main(int argc, char* argv[]) {
   printf("\n\ntime-spent: %f", time_spent);
 
   /*
-   * Run code with time ./<name> <n1> <n2> to get real, usr, sys times
+   * Run code with:
+   *    time ./<name> <n1> <n2> to get real, usr, sys times
    */
 
   return 0;

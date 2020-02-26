@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
 
     // STDIN_FILENO - Macro para o Standard Output
     while ((nr = read(fd1, buffer, BUFFER_SIZE)) > 0) {
-        write(STDIN_FILENO, buffer, nr);
+        write(STDOUT_FILENO, buffer, nr);
     }
 
-    write(STDIN_FILENO, "\n",1);
+    write(STDOUT_FILENO, "\n",1);
     
     close(fd1);
     return 0;

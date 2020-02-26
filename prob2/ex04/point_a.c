@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
     }
 
     int i = 1;
-    write(STDOUT_FILENO, "Name (^C to exit): ", 6);
+    write(STDOUT_FILENO, "Name (^C to exit): ", 19);
     while ((nr = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0) {
         if (i % 2 == 0) {
-            write(STDOUT_FILENO, "Name (^C to exit): ", 6);
+            write(STDOUT_FILENO, "Name (^C to exit): ", 19);
         } else {
             write(STDOUT_FILENO, "Grade: ", 7);
         }

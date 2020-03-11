@@ -24,10 +24,10 @@ int main(void) {
         }
         else { // simulando o trabalho do pai
             for (j=1; j<=10; j++) {
-                wait(1);
+                sleep(1);
                 printf("father working ...\n");
             }
         }
     }
     exit(0);
-} 
+}

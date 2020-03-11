@@ -1,0 +1,87 @@
+../:
+total 132
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 09:14 .
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ..
+-rwxrwxrwx 1 skidru skidru 133155 Mar 11 08:34 Prob_03.pdf
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex01
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex02
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex03
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex04
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex05
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex06
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:34 ex07
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 08:55 ex08
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 09:11 ex09
+drwxrwxrwx 1 skidru skidru   4096 Mar 11 09:27 ex10
+
+../ex01:
+total 4
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  948 Mar 11 08:34 point_a.c
+
+../ex02:
+total 0
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  444 Mar 11 08:34 point_a.c
+-rwxrwxrwx 1 skidru skidru  356 Mar 11 08:34 point_c.c
+-rwxrwxrwx 1 skidru skidru  358 Mar 11 08:34 point_d.c
+
+../ex03:
+total 4
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  605 Mar 11 08:34 point_a.c
+
+../ex04:
+total 0
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  466 Mar 11 08:34 point_a.c
+-rwxrwxrwx 1 skidru skidru  300 Mar 11 08:34 point_b.c
+
+../ex05:
+total 4
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  603 Mar 11 08:34 point_a.c
+
+../ex06:
+total 8
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  917 Mar 11 08:34 point_a.c
+-rwxrwxrwx 1 skidru skidru  919 Mar 11 08:34 point_b.c
+
+../ex07:
+total 0
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:34 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  101 Mar 11 08:34 example.c
+-rwxrwxrwx 1 skidru skidru  348 Mar 11 08:46 point_a.c
+
+../ex08:
+total 32
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 08:55 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru 8472 Mar 11 08:55 a.out
+-rwxrwxrwx 1 skidru skidru  552 Mar 11 08:44 point_a.c
+-rwxrwxrwx 1 skidru skidru  564 Mar 11 08:46 point_b.c
+-rwxrwxrwx 1 skidru skidru  681 Mar 11 08:52 point_c.c
+-rwxrwxrwx 1 skidru skidru  685 Mar 11 08:53 point_d.c
+-rwxrwxrwx 1 skidru skidru  692 Mar 11 08:55 point_e.c
+
+../ex09:
+total 4
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:11 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru  910 Mar 11 09:10 point_a.c
+
+../ex10:
+total 20
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:27 .
+drwxrwxrwx 1 skidru skidru 4096 Mar 11 09:14 ..
+-rwxrwxrwx 1 skidru skidru 8640 Mar 11 09:27 a.out
+-rwxrwxrwx 1 skidru skidru 1120 Mar 11 09:27 ex10.c
+-rwxrwxrwx 1 skidru skidru 3023 Mar 11 09:27 text.txt

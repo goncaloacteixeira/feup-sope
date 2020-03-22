@@ -24,12 +24,16 @@ int main() {
 
     printf("PARENT: end of task no. %d\n", i);
     printf("PARENT: waiting for child no. %d ...\n", i);
-    pid=wait(&status);
 
-    if (pid != -1)
-      printf("PARENT: child with PID=%d terminated with exit code %d\n", pid, WEXITSTATUS(status));
-    else
-      break;
+    if (pid == 4)
+      exit(0);
+
+    while((pid = waitpid(-1, &status, WNOHANG)) != 0) {
+      if (pid != -1)
+          printf("PARENT: child with PID=%d terminated with exit code %d\n",pid,WEXITSTATUS(status));
+      else
+          break;
+    }
   }
   exit(0);
 }

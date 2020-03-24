@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
       }
 
       else {
-  			wait(NULL); 		/* Collect childs */
-  			close(fd[1]);
-  			fdd = fd[0];
-	    }
+        wait(NULL); 		/* Collect childs */
+        close(fd[1]);
+        fdd = fd[0];
+      }
     }
 
     exit(0);

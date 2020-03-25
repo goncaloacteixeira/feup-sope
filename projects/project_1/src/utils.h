@@ -8,6 +8,8 @@
 #include <limits.h>
 #include <string.h>
 
+#define MAX_LINES 500
+
 extern FILE* logFile;
 extern struct timespec start;
 
@@ -45,10 +47,17 @@ typedef struct {
   int max_depth;        //!< Directory max depth
 } arguments_t;
 
+typedef struct {
+  int size;
+  char* path;
+} line_t;
 
+line_t newLine(int size, char* path);
 
 void logReg(char* message);
 
 void parse_string(char* string, char** arr, char* delim);
 
 arguments_t parse_arguments(int argc, char* argv[]);
+
+void print_lines(line_t* lines, int size);

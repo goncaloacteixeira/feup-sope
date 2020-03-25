@@ -8,6 +8,13 @@ void logReg(char* message) {
   fprintf(logFile, "%d - %d - %s\n", delta_us, getpid(), message);
 }
 
+line_t newLine(int size, char* path) {
+  line_t line;
+  line.size = size;
+  line.path = path;
+  return line;
+}
+
 
 void parse_string(char* string, char** arr, char* delim) {
   char* token;
@@ -61,4 +68,10 @@ arguments_t parse_arguments(int argc, char* argv[]) {
   }
 
   return arguments;
+}
+
+void print_lines(line_t* lines, int size) {
+  for (int i = 0; i < size; i++) {
+    printf("%-8d%s\n", lines[i].size, lines[i].path);
+  }
 }

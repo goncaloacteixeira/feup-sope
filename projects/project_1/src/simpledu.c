@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
   arguments = parse_arguments(argc, argv);
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   logFile = fopen(getenv("LOG_FILENAME"), "w");
-  directory = arguments.dir;
 
   recursive_read(arguments.dir);
   print_lines(lines, line_no);

@@ -12,16 +12,15 @@ line_t newLine(int size, char* path) {
   line_t line;
   line.size = size;
 
-  if (!strcmp(path, "./")) {  // edge cases
-    strcpy(line.path, ".");
-    return line;
-  }
   if (path[strlen(path) - 1] == '/') {
-    if (strcmp(path, directory))
-      path[strlen(path) - 1] = '\0';
+    if (strcmp(path, directory)) {
+      if (strlen(path) == 2) path = ".";    // can't have char* with 1 char
+      else path[strlen(path) - 1] = '\0';
+    }
   }
 
   strcpy(line.path, path);
+
   return line;
 }
 
@@ -73,11 +72,14 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       parse_string(argv[i], arr, "=");
       arguments.max_depth = atoi(arr[1]);
     }
-    else if (strcmp(argv[i], "./") == 0 || strcmp(argv[i], ".") == 0 || (strcmp(argv[i], "./.")) == 0)
+    else if (strcmp(argv[i], "./") == 0 || strcmp(argv[i], ".") == 0 || (strcmp(argv[i], "./.")) == 0) {
+      directory = argv[i];
       continue;
+    }
     else {
       char *path = (char*) malloc(strlen(argv[i]) + 1 + 1 ); /* one for extra char, one for trailing zero */
       strcpy(path, argv[i]);
+      directory = argv[i];
       if (argv[i][strlen(argv[i]) - 1] != '/') {
         path[strlen(argv[i])] = '/';
         path[strlen(argv[i]) + 1] = '\0';

@@ -5,16 +5,43 @@
 #include <wait.h>
 #include <fcntl.h>
 #include <signal.h>
-
-extern FILE* logFile;
-extern struct timespec start;
-extern pid_t pid;
+#include <limits.h>
+#include <string.h>
 
 
-void logReg(pid_t pid, char* message);
+typedef struct {
+  char* dir;            //!< Directory to run command
+  /**
+  * The information is also relative to files
+  */
+  int all;              //!< 1 if -a or --all
+  /**
+  * Prints real byte data (files) or allocated (directories)
+  */
+  int bytes;            //!< 1 if -b or --bytes
+  /**
+  * Defines the block size (byte) for representation effects
+  */
+  int block_size;       //!< block size (bytes) for representation
+  /**
+  * Count each hard link of files with multiple links
+  */
+  int count_links;      //!< 1 if -l or --count-links
+  /**
+  * Dereference symlinks that are command line arguments
+  */
+  int dereference;      //!< 1 if -L or --dereference
+  /**
+  * Do not add sizes of subdirectories
+  */
+  int separate_dirs;    //!< 1 if -S or --separate-dirs
+  /**
+  * Show the total for each directory (and file if --all) that is at
+  * most MAX_DEPTH levels down from the root of the hierarchy.  The root
+  * is at level 0, so `du --max-depth=0' is equivalent to `du -s'.
+  */
+  int max_depth;        //!< Directory max depth
+} arguments_t;
 
-pid_t Fork(void);
 
-int Wexitstatus(pid_t pid, int status);
-
-void handler(int sig);
+arguments_t parse_arguments(int argc, char* argv[]);

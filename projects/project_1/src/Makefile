@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
-DEPS = utils.h wrappers.h
-OBJ = utils.o wrappers.o
+DEPS = utils.h wrappers.h invokers.h
+OBJ = utils.o wrappers.o invokers.o
 TARGETS = simpledu
 
 all: simpledu

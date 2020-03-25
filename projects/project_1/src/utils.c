@@ -11,7 +11,7 @@ void logReg(char* message) {
 line_t newLine(int size, char* path) {
   line_t line;
   line.size = size;
-  line.path = path;
+  strcpy(line.path, path);
   return line;
 }
 
@@ -37,7 +37,7 @@ arguments_t parse_arguments(int argc, char* argv[]) {
   arguments.dereference = 0;
   arguments.separate_dirs = 0;
   arguments.max_depth = INT_MAX;
-  arguments.dir = ".";
+  arguments.dir = "./";
 
   for (int i = 1; i < argc; i++) {
     if (strcmp("-l", argv[i]) == 0 || strcmp("--count-links", argv[i]) == 0)
@@ -63,8 +63,11 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       parse_string(argv[i], arr, "=");
       arguments.max_depth = atoi(arr[1]);
     }
-    else
+    else if (strcmp(argv[i], "./") == 0 || strcmp(argv[i], ".") == 0 || (strcmp(argv[i], "./.")) == 0)
+      continue;
+    else {
       arguments.dir = argv[i];
+    }
   }
 
   return arguments;

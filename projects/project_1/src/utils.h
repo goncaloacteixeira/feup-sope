@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {
   int size;
-  char* path;
+  char path[1024];
 } line_t;
 
 line_t newLine(int size, char* path);

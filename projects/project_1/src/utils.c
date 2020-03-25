@@ -1,5 +1,14 @@
 #include "utils.h"
 
+
+void logReg(char* message) {
+  struct timespec end;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  int delta_us = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+  fprintf(logFile, "%d - %d - %s\n", delta_us, getpid(), message);
+}
+
+
 void parse_string(char* string, char** arr, char* delim) {
   char* token;
   int i = 0;

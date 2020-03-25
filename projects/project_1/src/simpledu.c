@@ -4,12 +4,16 @@
 #include <time.h>
 #include <wait.h>
 
-#include "utils.h"
+#include "wrappers.h"
 
 static arguments_t arguments;
+struct timespec start;
+FILE* logFile;
 
 int main(int argc, char *argv[]) {
   arguments = parse_arguments(argc, argv);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+  logFile = fopen(getenv("LOG_FILENAME"), "w");
 
   printf("-l: %d\n", arguments.count_links);
   printf("path: %s\n", arguments.dir);
@@ -20,5 +24,5 @@ int main(int argc, char *argv[]) {
   printf("-S: %d\n", arguments.separate_dirs);
   printf("--max_depth: %d\n", arguments.max_depth);
 
-  return 0;
+  Exit(0);
 }

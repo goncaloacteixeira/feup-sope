@@ -8,6 +8,8 @@
 #include <limits.h>
 #include <string.h>
 
+extern FILE* logFile;
+extern struct timespec start;
 
 typedef struct {
   char* dir;            //!< Directory to run command
@@ -43,5 +45,10 @@ typedef struct {
   int max_depth;        //!< Directory max depth
 } arguments_t;
 
+
+
+void logReg(char* message);
+
+void parse_string(char* string, char** arr, char* delim);
 
 arguments_t parse_arguments(int argc, char* argv[]);

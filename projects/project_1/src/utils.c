@@ -11,8 +11,15 @@ void logReg(char* message) {
 line_t newLine(int size, char* path) {
   line_t line;
   line.size = size;
-  if (path[strlen(path)- 1] == '/')
-    path[strlen(path)-1] = '\0';
+
+  if (!strcmp(path, "./")) {  // edge cases
+    strcpy(line.path, ".");
+    return line;
+  }
+  if (path[strlen(path) - 1] == '/') {
+    if (strcmp(path, directory))
+      path[strlen(path) - 1] = '\0';
+  }
 
   strcpy(line.path, path);
   return line;
@@ -69,7 +76,13 @@ arguments_t parse_arguments(int argc, char* argv[]) {
     else if (strcmp(argv[i], "./") == 0 || strcmp(argv[i], ".") == 0 || (strcmp(argv[i], "./.")) == 0)
       continue;
     else {
-      arguments.dir = argv[i];
+      char *path = (char*) malloc(strlen(argv[i]) + 1 + 1 ); /* one for extra char, one for trailing zero */
+      strcpy(path, argv[i]);
+      if (argv[i][strlen(argv[i]) - 1] != '/') {
+        path[strlen(argv[i])] = '/';
+        path[strlen(argv[i]) + 1] = '\0';
+      }
+      arguments.dir = path;
     }
   }
 
@@ -78,6 +91,7 @@ arguments_t parse_arguments(int argc, char* argv[]) {
 
 void print_lines(line_t* lines, int size) {
   for (int i = 0; i < size; i++) {
-    printf("%-8d%s\n", lines[i].size, lines[i].path);
+    // printf("%-8d%s\n", lines[i].size, lines[i].path);
+    printf("%d\t%s\n", lines[i].size, lines[i].path);
   }
 }

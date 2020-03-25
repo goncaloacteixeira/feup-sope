@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# flag -l is always set
+echo "Testing simple du ..."
+
+# On TestDir
+# flags -L -a -b (read bytes from all files)
+echo "TEST1 | -a -b -L on TestDir"
+(./simpledu -l ../TestDir/ -L -a -b || echo $?) | sort -k2 > ../teste1_simpledu.txt
+(du -l ../TestDir/ -L -a -b || echo $?) | sort -k2 > ../teste1_du.txt
+
+DIFF=$(diff -q ../teste1_simpledu.txt ../teste1_du.txt)
+
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+	echo "OK"
+fi
+
+
+# On current folder
+# flags -L -a -b (read bytes from all files)
+echo "TEST2 | -a -b -L on Root"
+(./simpledu -l . -L -a -b || echo $?) | sort -k2 > ../teste2_simpledu.txt
+(du -l . -L -a -b || echo $?) | sort -k2 > ../teste2_du.txt
+
+DIFF=$(diff -q ../teste2_simpledu.txt ../teste2_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+	echo "OK"
+fi
+
+
+# On Downloads folder
+# flags -L -a -b (read bytes from all files)
+echo "TEST3 | -a -b -L on Downloads"
+(./simpledu -l /mnt/c/Users/skidr/Downloads/ -L -a -b || echo $?) | sort -k2 > ../teste3_simpledu.txt
+(du -l /mnt/c/Users/skidr/Downloads/ -L -a -b || echo $?) | sort -k2 > ../teste3_du.txt
+
+DIFF=$(diff -q ../teste3_simpledu.txt ../teste3_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+	echo "OK"
+fi
+
+
+# clean
+rm ../*teste* > /dev/null

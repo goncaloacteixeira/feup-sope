@@ -12,6 +12,7 @@
 
 extern FILE* logFile;
 extern struct timespec start;
+extern char* directory;
 
 typedef struct {
   char* dir;            //!< Directory to run command

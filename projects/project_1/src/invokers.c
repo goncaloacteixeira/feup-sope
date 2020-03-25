@@ -21,7 +21,8 @@ int recursive_read(char * name) {
 
     char path[1024];
     sprintf(path, "%s%s", name, ent->d_name);
-    stat(path, &st_buf);
+
+    (arguments.dereference) ? stat(path, &st_buf) : lstat(path, &st_buf); // check for dereference
 
     size += st_buf.st_size;
 

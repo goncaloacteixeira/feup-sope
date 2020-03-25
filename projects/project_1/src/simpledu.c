@@ -1,7 +1,14 @@
-#include "stdlib.h"
-#include "stdio.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+void logReg(FILE* log, char* message) {
+  fprintf(log, "%s\n" ,message);
+}
 
 int main(int argc, char const *argv[]) {
-  printf("Hello World\n");
+
+  FILE* logFile = fopen("output.txt", "w");
+  logReg(logFile, "Hello There");
+
   return 0;
 }

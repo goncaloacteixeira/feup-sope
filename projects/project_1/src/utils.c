@@ -11,6 +11,9 @@ void logReg(char* message) {
 line_t newLine(int size, char* path) {
   line_t line;
   line.size = size;
+  if (path[strlen(path)- 1] == '/')
+    path[strlen(path)-1] = '\0';
+
   strcpy(line.path, path);
   return line;
 }

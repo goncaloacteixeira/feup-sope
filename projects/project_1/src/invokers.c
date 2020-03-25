@@ -5,7 +5,7 @@ int recursive_read(char * name) {
   if ((dir = opendir(name)) == NULL) {
     perror(name);
     exit(2);
- }
+  }
   struct dirent *ent;
 
   int size = 0L;
@@ -24,15 +24,15 @@ int recursive_read(char * name) {
     stat(path, &st_buf);
 
     size += st_buf.st_size;
-    if (S_ISREG(st_buf.st_mode)) {
-      lines[line_no++] = newLine(st_buf.st_size, path);
-    }
 
     if (S_ISDIR(st_buf.st_mode)) {
       char *next = (char*) malloc(strlen(name) + strlen(entry_name) + 2);
       sprintf(next, "%s%s/", name, entry_name);
       size += recursive_read(next);
       free(next);
+    }
+    else {
+      lines[line_no++] = newLine(st_buf.st_size, path);
     }
   }
 

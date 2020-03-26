@@ -7,3 +7,5 @@ extern line_t lines[500];
 extern int line_no;
 
 int recursive_read(char * dir);
+
+int fork_read(char* name);

@@ -46,7 +46,7 @@ arguments_t parse_arguments(int argc, char* argv[]) {
   arguments.dereference = 0;
   arguments.separate_dirs = 0;
   arguments.max_depth = INT_MAX;
-  arguments.dir = "./";
+  arguments.dir = ".";
 
   for (int i = 1; i < argc; i++) {
     if (strcmp("-l", argv[i]) == 0 || strcmp("--count-links", argv[i]) == 0)
@@ -80,10 +80,17 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       char *path = (char*) malloc(strlen(argv[i]) + 1 + 1 ); /* one for extra char, one for trailing zero */
       strcpy(path, argv[i]);
       directory = argv[i];
+
+      /*  working for recursive version
       if (argv[i][strlen(argv[i]) - 1] != '/') {
         path[strlen(argv[i])] = '/';
         path[strlen(argv[i]) + 1] = '\0';
-      }
+      } */
+
+      // for fork version
+      if (argv[i][strlen(argv[i]) - 1] == '/')
+        path[strlen(argv[i]) - 1] = '\0';
+
       arguments.dir = path;
     }
   }

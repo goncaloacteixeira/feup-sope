@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   logFile = fopen(getenv("LOG_FILENAME"), "w");
 
-  recursive_read(arguments.dir);
+  fork_read(arguments.dir);
   print_lines(lines, line_no);
   Exit(0);
 }

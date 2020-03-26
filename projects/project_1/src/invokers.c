@@ -58,28 +58,32 @@ int fork_read(char* path) {
     pid_t pID = 1;
     char name[1024];
     struct stat statbuf;
-    if(stat(path, &statbuf) == -1)
-        return -1;
 
-    /* if the item is a file */
-    if(S_ISREG(statbuf.st_mode)){
+    (arguments.dereference) ? stat(path, &statbuf) : lstat(path, &statbuf); // check for dereference
+
+    /* if the item is a file or a link */
+    if (S_ISREG(statbuf.st_mode) || S_ISLNK(statbuf.st_mode)) {
         // printf("pID: %d   ", getpid());
-        if (arguments.all)
-          printf("%ld\t%s\n", statbuf.st_size, path);
+        if (arguments.all) {
+          /* if the block size or size in bytes - 512B -> the stat block size is set to 512B */
+          int fileSize = (arguments.bytes) ? (statbuf.st_size) : (statbuf.st_blocks * 512.0/arguments.block_size);
+          printf("%d\t%s\n", fileSize, path);
+        }
         // lines[line_no++] = newLine(statbuf.st_size, path);
     }
 
     /* if the item is a directory */
-    else if((statbuf.st_mode & S_IFMT) == S_IFDIR){
+    else if ((statbuf.st_mode & S_IFMT)){
       pID = fork();
 
-      if(pID > 0){    //parent
-       //printf("Forked child with pID: %d\n", pID);
-       waitpid(pID, &status, WUNTRACED);
-       //printf("Killed: %d\n", pID);
+      if (pID > 0){    //parent
+        // printf("Forked child with pID: %d\n", pID);
+        create(pID);
+        waitpid(pID, &status, WUNTRACED);
+        // printf("Killed: %d\n", pID);
       }
-      else if(pID == 0){   //child
-        //printf("Child: %d\n", getpid());
+      else if (pID == 0){   //child
+        // printf("Child: %d\n", getpid());
         DIR *dir;
         struct dirent *dp = NULL;
         if ((dir = opendir(path)) == NULL){
@@ -90,7 +94,7 @@ int fork_read(char* path) {
           //printf("DIR: %s/\n", path);
           while((dp = readdir(dir)) != NULL){
             //printf("pID: %d key: %d dp = %s\n", getpid(), key, dp->d_name);
-            if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+            if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
               continue;
             sprintf(name, "%s/%s", path, dp->d_name);
             //printf("Process: %d  Key: %d\n", getpid(), key);
@@ -109,8 +113,7 @@ int fork_read(char* path) {
      }
      printf("%ld\t%s\n", statbuf.st_size, path);
   }
+  //printf("Returning from : %d with key: %d\n", getpid(), key);
 
-    //printf("Returning from : %d with key: %d\n", getpid(), key);
-
-    return 0;
+  return 0;
 }

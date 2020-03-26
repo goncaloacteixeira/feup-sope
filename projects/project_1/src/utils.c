@@ -1,11 +1,17 @@
 #include "utils.h"
 
-
-void logReg(char* message) {
+int delta() {
   struct timespec end;
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-  int delta_us = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-  fprintf(logFile, "%d - %d - %s\n", delta_us, getpid(), message);
+  return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+}
+
+
+void logReg(int pid, char* message) {
+  struct timespec end;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  // int delta_us = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+  // fprintf(logFile, "%d - %d - %s\n", delta_us, pid, message);
 }
 
 line_t newLine(int size, char* path) {
@@ -81,7 +87,7 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       strcpy(path, argv[i]);
       directory = argv[i];
 
-      /*  working for recursive version
+      /* //  working for recursive version
       if (argv[i][strlen(argv[i]) - 1] != '/') {
         path[strlen(argv[i])] = '/';
         path[strlen(argv[i]) + 1] = '\0';

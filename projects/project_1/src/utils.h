@@ -10,7 +10,8 @@
 
 #define MAX_LINES 500
 
-extern FILE* logFile;
+extern int logFile;
+// extern FILE* logFile;
 extern struct timespec start;
 extern char* directory;
 
@@ -55,7 +56,9 @@ typedef struct {
 
 line_t newLine(int size, char* path);
 
-void logReg(char* message);
+int delta();
+
+void logReg(int pid, char* message);
 
 void parse_string(char* string, char** arr, char* delim);
 

@@ -146,9 +146,12 @@ int fork_read2(char* path, int level) {
         create(pID);  // log process creation
         waitpid(pID, &status, WUNTRACED);
         long int tmp;
-        read(fd[READ], &tmp, sizeof(long int));
-        if (!arguments.separate_dirs)   /* check for separated dir size */
+
+        if (!arguments.separate_dirs) {  /* check for separated dir size */
+          read(fd[READ], &tmp, sizeof(long int));
+          recievePipe(tmp);
           dirSize += tmp;
+        }
         // printf("Got %ld from pipe | Current size on %s: %ld\n", tmp, path, dirSize);
       }
       else if (pID == 0) {   //child
@@ -167,14 +170,21 @@ int fork_read2(char* path, int level) {
     else {
       long int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       dirSize += fileSize;
-      if (level < arguments.max_depth && arguments.all)
+      if (level < arguments.max_depth && arguments.all) {
         printf("%ld\t%s\n", fileSize, name);
+        entry(name);
+      }
+
     }
   }
-  write(fd[WRITE], &dirSize, sizeof(long int));
+  if (!arguments.separate_dirs) {
+    write(fd[WRITE], &dirSize, sizeof(long int));
+    sendPipe(dirSize);
+  }
   dirSize += (arguments.bytes) ? 4096 : 0;
   if (level <= arguments.max_depth) {
     printf("%ld\t%s\n", dirSize, path);
+    entry(path);
     // printf("Finished with %s | size: %ld\n", path, dirSize);
 
   }

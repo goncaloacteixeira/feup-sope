@@ -92,6 +92,42 @@ else
   echo "OK"
 fi
 
+echo "TEST7 | -a -B 512 on TestDir/"
+(./simpledu -l ../TestDir/ -a -B 512 || echo $?) | sort -k2 > ../teste_simpledu.txt
+(du -l ../TestDir/ -a -B 512 || echo $?) | sort -k2 > ../teste_du.txt
+
+DIFF=$(diff -q ../teste_simpledu.txt ../teste_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+  echo "OK"
+fi
+
+echo "TEST8 | -a -B 1024 on Root/"
+(./simpledu -l . -a -B 1024 || echo $?) | sort -k2 > ../teste_simpledu.txt
+(du -l . -a -B 1024 || echo $?) | sort -k2 > ../teste_du.txt
+
+DIFF=$(diff -q ../teste_simpledu.txt ../teste_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+  echo "OK"
+fi
+
+echo "TEST9 | -a --block-size=2048 on Root/"
+(./simpledu -l . -a --block-size=2048 || echo $?) | sort -k2 > ../teste_simpledu.txt
+(du -l . -a --block-size=2048 || echo $?) | sort -k2 > ../teste_du.txt
+
+DIFF=$(diff -q ../teste_simpledu.txt ../teste_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+  echo "OK"
+fi
+
 # clean
 rm ../*teste* > /dev/null
 make clean

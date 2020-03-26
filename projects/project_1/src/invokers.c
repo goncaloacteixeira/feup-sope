@@ -22,9 +22,11 @@ int recursive_read(char * name) {
     char path[1024];
     sprintf(path, "%s%s", name, ent->d_name);
 
+    // Checking if we want to distinguish between symlinks and regfiles or not
     (arguments.dereference) ? stat(path, &st_buf) : lstat(path, &st_buf); // check for dereference
-
-    size += st_buf.st_size;
+    // size in bytes or in block size
+    // The stat, fstat, lstat gives blocks of 512B, but by defauld, du uses 1024B for block size.
+    size += (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
 
     if (S_ISDIR(st_buf.st_mode)) {
       char *next = (char*) malloc(strlen(name) + strlen(entry_name) + 2);
@@ -33,11 +35,13 @@ int recursive_read(char * name) {
       free(next);
     }
     else {
-      lines[line_no++] = newLine(st_buf.st_size, path);
+      int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
+      lines[line_no++] = newLine(fileSize, path);
     }
   }
 
-  lines[line_no++] = newLine(size + 4096, name);
+  int dirSize = (arguments.bytes) ? size + 4096 : size; // hack
+  lines[line_no++] = newLine(dirSize, name);
   closedir(dir);
   return size;
 }

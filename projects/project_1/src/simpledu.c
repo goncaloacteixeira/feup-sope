@@ -23,8 +23,6 @@ int main(int argc, char *argv[]) {
   logFile = open(getenv("LOG_FILENAME"), O_RDWR | O_CREAT | O_TRUNC, 0666);
 
   pipe(fd);
-  close(fd[READ]);
-  write(fd[WRITE], 0, sizeof(long int));
   fork_read2(arguments.dir, 0);
   // print_lines(lines, line_no);
   Exit(0);

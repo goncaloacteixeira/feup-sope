@@ -112,7 +112,7 @@ int fork_read2(char* path, int level) {
   int status;
   pid_t pID;
   char name[1024];
-  long int dirSize = (arguments.bytes) ? 4096 : 0;
+  long int dirSize = 0;
 
   DIR* dir;
   if ((dir = opendir(path)) == NULL) {
@@ -145,6 +145,10 @@ int fork_read2(char* path, int level) {
       if (pID > 0) {    //parent
         create(pID);  // log process creation
         waitpid(pID, &status, WUNTRACED);
+        long int tmp;
+        read(fd[READ], &tmp, sizeof(long int));
+        dirSize += tmp;
+        // printf("Got %ld from pipe | Current size on %s: %ld\n", tmp, path, dirSize);
       }
       else if (pID == 0) {   //child
         fork_read2(next, level + 1);
@@ -165,8 +169,12 @@ int fork_read2(char* path, int level) {
         printf("%ld\t%s\n", fileSize, name);
     }
   }
+  write(fd[WRITE], &dirSize, sizeof(long int));
+  dirSize += (arguments.bytes) ? 4096 : 0;
   if (level <= arguments.max_depth) {
     printf("%ld\t%s\n", dirSize, path);
+    // printf("Finished with %s | size: %ld\n", path, dirSize);
+
   }
-  return 0;
+  return dirSize;
 }

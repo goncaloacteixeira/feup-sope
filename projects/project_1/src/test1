@@ -128,6 +128,30 @@ else
   echo "OK"
 fi
 
+echo "TEST10 | --block-size=2048 on Root/"
+(./simpledu -l . --block-size=2048 || echo $?) | sort -k2 > ../teste_simpledu.txt
+(du -l . --block-size=2048 || echo $?) | sort -k2 > ../teste_du.txt
+
+DIFF=$(diff -q ../teste_simpledu.txt ../teste_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+  echo "OK"
+fi
+
+echo "TEST11 | -L -b on TestDir/"
+(./simpledu -l ../TestDir/ -L -b || echo $?) | sort -k2 > ../teste_simpledu.txt
+(du -l ../TestDir/ -L -b || echo $?) | sort -k2 > ../teste_du.txt
+
+DIFF=$(diff -q ../teste_simpledu.txt ../teste_du.txt)
+if [ "$DIFF" ]
+then
+	echo "FAIL"
+else
+  echo "OK"
+fi
+
 # clean
 rm ../*teste* > /dev/null
 make clean

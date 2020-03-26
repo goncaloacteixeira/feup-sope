@@ -36,7 +36,8 @@ int recursive_read(char * name) {
     }
     else {
       int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
-      lines[line_no++] = newLine(fileSize, path);
+      if (arguments.all)
+        lines[line_no++] = newLine(fileSize, path);
     }
   }
 

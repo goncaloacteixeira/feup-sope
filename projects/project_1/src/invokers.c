@@ -147,7 +147,8 @@ int fork_read2(char* path, int level) {
         waitpid(pID, &status, WUNTRACED);
         long int tmp;
         read(fd[READ], &tmp, sizeof(long int));
-        dirSize += tmp;
+        if (!arguments.separate_dirs)   /* check for separated dir size */
+          dirSize += tmp;
         // printf("Got %ld from pipe | Current size on %s: %ld\n", tmp, path, dirSize);
       }
       else if (pID == 0) {   //child
@@ -159,7 +160,8 @@ int fork_read2(char* path, int level) {
         printf("Failed to fork\n");
         Exit(EXIT_FAILURE);
       }
-      dirSize += (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
+      if (!arguments.separate_dirs)   /* check for separated dir size */
+        dirSize += (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       free(next);
     }
     else {

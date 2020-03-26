@@ -64,7 +64,8 @@ int fork_read(char* path) {
     /* if the item is a file */
     if(S_ISREG(statbuf.st_mode)){
         // printf("pID: %d   ", getpid());
-        printf("%ld\t%s\n", statbuf.st_size, path);
+        if (arguments.all)
+          printf("%ld\t%s\n", statbuf.st_size, path);
         // lines[line_no++] = newLine(statbuf.st_size, path);
     }
 
@@ -72,40 +73,41 @@ int fork_read(char* path) {
     else if((statbuf.st_mode & S_IFMT) == S_IFDIR){
       pID = fork();
 
-     if(pID > 0){    //parent
-         //printf("Forked child with pID: %d\n", pID);
-         waitpid(pID, &status, WUNTRACED);
-         //printf("Killed: %d\n", pID);
+      if(pID > 0){    //parent
+       //printf("Forked child with pID: %d\n", pID);
+       waitpid(pID, &status, WUNTRACED);
+       //printf("Killed: %d\n", pID);
+      }
+      else if(pID == 0){   //child
+        //printf("Child: %d\n", getpid());
+        DIR *dir;
+        struct dirent *dp = NULL;
+        if ((dir = opendir(path)) == NULL){
+          printf("Cannot open %s\n", path);
+          Exit(EXIT_FAILURE);
+        }
+        else {
+          //printf("DIR: %s/\n", path);
+          while((dp = readdir(dir)) != NULL){
+            //printf("pID: %d key: %d dp = %s\n", getpid(), key, dp->d_name);
+            if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+              continue;
+            sprintf(name, "%s/%s", path, dp->d_name);
+            //printf("Process: %d  Key: %d\n", getpid(), key);
+            //printf("I was passed: %s\n", path);
+            //printf("Calling recFork(%s)\n\n", name);
+            fork_read(name);
+          }
+          // printf("%ld\t%s\n", statbuf.st_size, path);
+          closedir(dir);
+          Exit(0);
+        }
      }
-     else if(pID == 0){   //child
-         //printf("Child: %d\n", getpid());
-         DIR *dir;
-         struct dirent *dp = NULL;
-         if ((dir = opendir(path)) == NULL){
-             printf("Cannot open %s\n", path);
-             Exit(EXIT_FAILURE);
-         }
-         else{
-             //printf("DIR: %s/\n", path);
-             while((dp = readdir(dir)) != NULL){
-                 //printf("pID: %d key: %d dp = %s\n", getpid(), key, dp->d_name);
-                 if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
-                     continue;
-                 sprintf(name, "%s/%s", path, dp->d_name);
-                 //printf("Process: %d  Key: %d\n", getpid(), key);
-                 //printf("I was passed: %s\n", path);
-                 //printf("Calling recFork(%s)\n\n", name);
-                 fork_read(name);
-             }
-             printf("%ld\t%s\n", statbuf.st_size, path);
-             closedir(dir);
-             Exit(0);
-         }
+     else {   //failed to fork
+       printf("Failed to fork\n");
+       Exit(EXIT_FAILURE);
      }
-     else{   //failed to fork
-         printf("Failed to fork\n");
-         exit(EXIT_FAILURE);
-     }
+     printf("%ld\t%s\n", statbuf.st_size, path);
   }
 
     //printf("Returning from : %d with key: %d\n", getpid(), key);

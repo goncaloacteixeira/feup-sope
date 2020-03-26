@@ -143,7 +143,7 @@ int fork_read2(char* path, int level) {
       pID = fork();
 
       if (pID > 0) {    //parent
-        create(pID);
+        create(pID);  // log process creation
         waitpid(pID, &status, WUNTRACED);
       }
       else if (pID == 0) {   //child
@@ -161,7 +161,7 @@ int fork_read2(char* path, int level) {
     else {
       long int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       dirSize += fileSize;
-      if (level <= arguments.max_depth && arguments.all)
+      if (level < arguments.max_depth && arguments.all)
         printf("%ld\t%s\n", fileSize, name);
     }
   }

@@ -12,7 +12,6 @@
 #define BUFFER_SIZE 512
 
 extern int logFile;
-// extern FILE* logFile;
 extern struct timespec start;
 extern char* directory;
 
@@ -55,14 +54,9 @@ typedef struct {
   char path[1024];
 } line_t;
 
-line_t newLine(int size, char* path);
 
 int delta();
-
-void logReg(int pid, char* message);
 
 void parse_string(char* string, char** arr, char* delim);
 
 arguments_t parse_arguments(int argc, char* argv[]);
-
-void print_lines(line_t* lines, int size);

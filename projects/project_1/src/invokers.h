@@ -8,8 +8,5 @@
 extern arguments_t arguments;
 extern int fd[2];
 
-int recursive_read(char * dir);
 
 int fork_read(char* name, int level);
-
-int fork_read2(char* path, int level);

@@ -25,6 +25,6 @@ int main(int argc, char *argv[]) {
   logFile = open(getenv("LOG_FILENAME"), O_RDWR | O_CREAT | O_TRUNC, 0666);
 
   pipe(fd);
-  fork_read2(arguments.dir, 0);
+  fork_read(arguments.dir, 0);
   Exit(0);
 }

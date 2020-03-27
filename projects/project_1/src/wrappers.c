@@ -1,32 +1,34 @@
 #include "wrappers.h"
 
 void Exit(int status) {
-  char message[30];
+  char message[64];
   sprintf(message, "%d - %d - EXIT - %d\n", delta(), getpid(), status);
   write(logFile, message, strlen(message));
   exit(status);
 }
 
 void create(int pid) {
-  char message[30];
+  char message[64];
   sprintf(message, "%d - %d - CREATE - %d\n", delta(), getpid(), pid);
   write(logFile, message, strlen(message));
 }
 
 void sendPipe(long int size) {
-  char message[30];
+  char message[64];
   sprintf(message, "%d - %d - SEND_PIPE - %ld\n", delta(), getpid(), size);
   write(logFile, message, strlen(message));
 }
 
 void recievePipe(long int size) {
-  char message[30];
+  char message[64];
   sprintf(message, "%d - %d - RECV_PIPE - %ld\n", delta(), getpid(), size);
   write(logFile, message, strlen(message));
 }
 
 void entry(char* path) {
-  char message[50];
+  char* message;
+  message = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
   sprintf(message, "%d - %d - ENTRY - %s\n", delta(), getpid(), path);
   write(logFile, message, strlen(message));
+  free(message);
 }

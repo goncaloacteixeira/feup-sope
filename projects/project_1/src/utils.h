@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define MAX_LINES 500
+#define BUFFER_SIZE 512
 
 extern int logFile;
 // extern FILE* logFile;

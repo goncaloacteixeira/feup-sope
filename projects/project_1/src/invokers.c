@@ -35,14 +35,14 @@ int recursive_read(char * path) {
       free(next);
     }
     else {
-      int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
-      if (arguments.all)
-        lines[line_no++] = newLine(fileSize, name);
+      // int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
+      // if (arguments.all)
+        // lines[line_no++] = newLine(fileSize, name);
     }
   }
 
-  int dirSize = (arguments.bytes) ? size + 4096 : size; // hack
-  lines[line_no++] = newLine(dirSize, path);
+  // int dirSize = (arguments.bytes) ? size + 4096 : size; // hack
+  // lines[line_no++] = newLine(dirSize, path);
   closedir(dir);
   return size;
 }
@@ -111,7 +111,7 @@ int fork_read(char* path, int level) {
 int fork_read2(char* path, int level) {
   int status;
   pid_t pID;
-  char name[1024];
+  char* name;
   long int dirSize = 0;
 
   DIR* dir;
@@ -130,36 +130,34 @@ int fork_read2(char* path, int level) {
     if (!strcmp(".", path) || !strcmp("..", path))
       return 0;
 
-    // printf("Name: %s\n", name);
-    // Checking if we want to distinguish between symlinks and regfiles or not
-    sprintf(name, "%s/%s", path, ent->d_name);
-    // printf("Name: %s\n", name);
+    name = (char*) malloc (BUFFER_SIZE * sizeof(char));
+    /* Checking wether we want to distinguish between symlinks and regfiles or not */
+    sprintf(name, "%s%s", path, ent->d_name);
     (arguments.dereference) ? stat(name, &st_buf) : lstat(name, &st_buf); // check for dereference
 
     if (S_ISDIR(st_buf.st_mode)) {
       char *next = (char*) malloc(strlen(path) + strlen(entry_name) + 2);
-      sprintf(next, "%s/%s", path, entry_name);
+      sprintf(next, "%s%s/", path, entry_name);
 
       pID = fork();
 
-      if (pID > 0) {    //parent
-        create(pID);  // log process creation
+      if (pID > 0) {    // parent
+        create(pID);    // log process creation
         waitpid(pID, &status, WUNTRACED);
         long int tmp;
 
         if (!arguments.separate_dirs) {  /* check for separated dir size */
           read(fd[READ], &tmp, sizeof(long int));
-          recievePipe(tmp);
+          recievePipe(tmp); /* log received data from pipe */
           dirSize += tmp;
         }
-        // printf("Got %ld from pipe | Current size on %s: %ld\n", tmp, path, dirSize);
       }
-      else if (pID == 0) {   //child
-        fork_read2(next, level + 1);
+      else if (pID == 0) {   // child
+        fork_read2(next, level + 1);  // recursive calls
         closedir(dir);
         Exit(0);
       }
-      else {   //failed to fork
+      else {   // failed to fork
         printf("Failed to fork\n");
         Exit(EXIT_FAILURE);
       }
@@ -171,22 +169,38 @@ int fork_read2(char* path, int level) {
       long int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       dirSize += fileSize;
       if (level < arguments.max_depth && arguments.all) {
-        printf("%ld\t%s\n", fileSize, name);
-        entry(name);
+        /* Printing process */
+        char *toPrint;
+        toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
+        sprintf(toPrint, "%ld\t%s\n", fileSize, name);
+        write(STDOUT_FILENO, toPrint, strlen(toPrint));
+        free(toPrint);
+        // printf("%ld\t%s\n", fileSize, name);
+        entry(name); /* log new entry registed */
       }
-
     }
   }
   if (!arguments.separate_dirs) {
     write(fd[WRITE], &dirSize, sizeof(long int));
-    sendPipe(dirSize);
+    sendPipe(dirSize); /* log sent data to pipe */
   }
   dirSize += (arguments.bytes) ? 4096 : 0;
   if (level <= arguments.max_depth) {
-    printf("%ld\t%s\n", dirSize, path);
-    entry(path);
-    // printf("Finished with %s | size: %ld\n", path, dirSize);
-
+    if (strcmp(path, directory)) {
+      if (!strcmp(".", directory))
+        path = ".";
+      else
+        path[strlen(path) - 1] = '\0';
+    }
+    char *toPrint;
+    toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
+    sprintf(toPrint, "%ld\t%s\n", dirSize, path);
+    write(STDOUT_FILENO, toPrint, strlen(toPrint));
+    free(toPrint);
+    // printf("%ld\t%s\n", dirSize, path);
+    entry(path);    /* log new entry registed */
   }
+
+  free(name);
   return dirSize;
 }

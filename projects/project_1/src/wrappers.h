@@ -1,5 +1,10 @@
 #include "utils.h"
 
+/**
+* Functions to register some important events
+*/
+
+
 void Exit(int status);
 
 void create(int pid);

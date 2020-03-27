@@ -46,6 +46,9 @@ int fork_read(char* path, int level) {
         }
       }
       else if (pID == 0) {   // child
+        /* Prevent the SIGINT propagation */
+        signal(SIGINT, SIG_IGN);
+
         fork_read(next, level + 1);  // recursive calls
         closedir(dir);
         Exit(0);

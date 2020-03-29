@@ -7,10 +7,12 @@ TARGETS = simpledu
 all: simpledu
 
 %.o: %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
+	@echo $@
 
 simpledu: $(OBJ)
 	@$(CC) $(CFLAGS) -o $@ $@.c $(OBJ) -lm
+	@echo $@
 
 clean:
 	@rm *.o $(TARGETS)

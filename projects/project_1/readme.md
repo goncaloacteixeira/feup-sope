@@ -4,3 +4,5 @@
 
 
 To generate a log file set `LOG_FILENAME` in your env. variables to the desired file location.
+
+To Do: deal with signals

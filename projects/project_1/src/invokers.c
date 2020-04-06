@@ -67,8 +67,8 @@ int fork_read(char* path, int level) {
         toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
         sprintf(toPrint, "%ld\t%s\n", fileSize, name);
         write(STDOUT_FILENO, toPrint, strlen(toPrint));
+        entry(toPrint); /* log new entry registed */
         free(toPrint);
-        entry(name); /* log new entry registed */
       }
     }
   }
@@ -88,8 +88,8 @@ int fork_read(char* path, int level) {
     toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
     sprintf(toPrint, "%ld\t%s\n", dirSize, path);
     write(STDOUT_FILENO, toPrint, strlen(toPrint));
+    entry(toPrint);    /* log new entry registed */
     free(toPrint);
-    entry(path);    /* log new entry registed */
   }
 
   return dirSize;

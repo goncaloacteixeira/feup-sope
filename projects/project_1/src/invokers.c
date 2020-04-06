@@ -80,7 +80,7 @@ int fork_read(char* path, int level) {
     write(fd[WRITE], &dirSize, sizeof(long int));
     sendPipe(dirSize); /* log sent data to pipe */
   }
-  dirSize += (arguments.bytes) ? 4096 : 0;
+  dirSize += (arguments.bytes) ? 4096 : arguments.system_block_size / arguments.block_size;
   if (level <= arguments.max_depth) {
     if (strcmp(path, directory)) {
       if (!strcmp(".", directory))

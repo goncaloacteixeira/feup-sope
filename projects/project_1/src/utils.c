@@ -29,6 +29,7 @@ arguments_t parse_arguments(int argc, char* argv[]) {
   arguments.dereference = 0;
   arguments.separate_dirs = 0;
   arguments.max_depth = INT_MAX;
+  arguments.system_block_size = 4096;
   arguments.dir = "./";
 
   int num_flags = 0;
@@ -78,15 +79,10 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       strcpy(path, argv[i]);
       directory = argv[i];
 
-       //  working for recursive version
       if (argv[i][strlen(argv[i]) - 1] != '/') {
         path[strlen(argv[i])] = '/';
         path[strlen(argv[i]) + 1] = '\0';
       }
-
-      // for fork version
-      // if (argv[i][strlen(argv[i]) - 1] == '/')
-      //   path[strlen(argv[i]) - 1] = '\0';
 
       arguments.dir = path;
     }
@@ -105,6 +101,10 @@ arguments_t parse_arguments(int argc, char* argv[]) {
       directory = ".";
     }
   }
+
+  struct stat fi;
+  stat("/", &fi);
+  arguments.system_block_size = fi.st_blksize;
 
   return arguments;
 }

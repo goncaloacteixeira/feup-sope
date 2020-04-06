@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <limits.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #define MAX_LINES 500
 #define BUFFER_SIZE 512
@@ -47,6 +48,8 @@ typedef struct {
   * is at level 0, so `du --max-depth=0' is equivalent to `du -s'.
   */
   int max_depth;        //!< Directory max depth
+
+  int system_block_size;
 } arguments_t;
 
 typedef struct {

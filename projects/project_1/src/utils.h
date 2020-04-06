@@ -55,7 +55,7 @@ typedef struct {
 } line_t;
 
 
-int delta();
+double delta();
 
 void parse_string(char* string, char** arr, char* delim);
 

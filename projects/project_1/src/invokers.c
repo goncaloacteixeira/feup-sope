@@ -24,9 +24,9 @@ int fork_read(char* path, int level) {
       return 0;
 
     name = (char*) malloc (BUFFER_SIZE * sizeof(char));
-    /* Checking wether we want to distinguish between symlinks and regfiles or not */
     sprintf(name, "%s%s", path, ent->d_name);
-    (arguments.dereference) ? stat(name, &st_buf) : lstat(name, &st_buf); // check for dereference
+    /* Checking wether we want to distinguish between symlinks and regfiles or not */
+    (arguments.dereference) ? stat(name, &st_buf) : lstat(name, &st_buf);
 
     if (S_ISDIR(st_buf.st_mode)) {
       char *next = (char*) malloc(strlen(path) + strlen(entry_name) + 2);
@@ -46,9 +46,6 @@ int fork_read(char* path, int level) {
         }
       }
       else if (pID == 0) {   // child
-        /* Prevent the SIGINT propagation */
-        signal(SIGINT, SIG_IGN);
-
         fork_read(next, level + 1);  // recursive calls
         closedir(dir);
         Exit(0);
@@ -71,7 +68,6 @@ int fork_read(char* path, int level) {
         sprintf(toPrint, "%ld\t%s\n", fileSize, name);
         write(STDOUT_FILENO, toPrint, strlen(toPrint));
         free(toPrint);
-        // printf("%ld\t%s\n", fileSize, name);
         entry(name); /* log new entry registed */
       }
     }
@@ -93,10 +89,8 @@ int fork_read(char* path, int level) {
     sprintf(toPrint, "%ld\t%s\n", dirSize, path);
     write(STDOUT_FILENO, toPrint, strlen(toPrint));
     free(toPrint);
-    // printf("%ld\t%s\n", dirSize, path);
     entry(path);    /* log new entry registed */
   }
 
-  free(name);
   return dirSize;
 }

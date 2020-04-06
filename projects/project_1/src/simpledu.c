@@ -13,7 +13,6 @@
 
 arguments_t arguments;
 struct timespec start;
-// FILE* for recursive
 int logFile;
 char* directory;
 int fd[2];
@@ -23,7 +22,6 @@ int main(int argc, char *argv[]) {
   arguments = parse_arguments(argc, argv);
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   logFile = open(getenv("LOG_FILENAME"), O_RDWR | O_CREAT | O_TRUNC, 0666);
-
 
   pipe(fd);
   fork_read(arguments.dir, 0);

@@ -8,5 +8,4 @@
 extern arguments_t arguments;
 extern int fd[2];
 
-
 int fork_read(char* name, int level);

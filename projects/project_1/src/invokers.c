@@ -12,17 +12,17 @@ int fork_read(char* path, int level) {
     perror(path);
     exit(2);
   }
-  struct dirent *ent;
 
+  struct dirent *ent;
   while ((ent = readdir(dir)) != NULL) {
     char *entry_name = ent->d_name;
     if (!strcmp(".", entry_name) || !strcmp("..", entry_name))
         continue;
 
-    struct stat st_buf;
     if (!strcmp(".", path) || !strcmp("..", path))
       return 0;
 
+    struct stat st_buf;
     name = (char*) malloc (BUFFER_SIZE * sizeof(char));
     sprintf(name, "%s%s", path, ent->d_name);
     /* Checking wether we want to distinguish between symlinks and regfiles or not */
@@ -34,26 +34,29 @@ int fork_read(char* path, int level) {
 
       pID = fork();
 
-      if (pID > 0) {    // parent
-        create(pID);    // log process creation
+      if (pID > 0) {    /* parent */
+        create(pID);    /* log process creation */
         waitpid(pID, &status, WUNTRACED);
-        long int tmp;
 
+        /* Getting info from pipe */
+        long int tmp;
         if (!arguments.separate_dirs) {  /* check for separated dir size */
           read(fd[READ], &tmp, sizeof(long int));
           recievePipe(tmp); /* log received data from pipe */
           dirSize += tmp;
         }
+        /**************************/
       }
-      else if (pID == 0) {   // child
-        fork_read(next, level + 1);  // recursive calls
-        closedir(dir);
+      else if (pID == 0) {   /* child */
+        fork_read(next, level + 1);  /* recursive calls for deeper levels */
+        closedir(dir);               /* directory processed, no need to keep open */
         Exit(0);
       }
-      else {   // failed to fork
+      else {   /* failed to fork */
         printf("Failed to fork\n");
         Exit(EXIT_FAILURE);
       }
+
       if (!arguments.separate_dirs)   /* check for separated dir size */
         dirSize += (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       free(next);
@@ -62,21 +65,25 @@ int fork_read(char* path, int level) {
       long int fileSize = (arguments.bytes) ? (st_buf.st_size) : (st_buf.st_blocks * 512.0/arguments.block_size);
       dirSize += fileSize;
       if (level < arguments.max_depth && arguments.all) {
-        /* Printing process */
+        /* Printing info */
         char *toPrint;
         toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
         sprintf(toPrint, "%ld\t%s\n", fileSize, name);
         write(STDOUT_FILENO, toPrint, strlen(toPrint));
         entry(toPrint); /* log new entry registed */
         free(toPrint);
+        /*****************/
       }
     }
   }
+
   if (!arguments.separate_dirs) {
-    write(fd[WRITE], &dirSize, sizeof(long int));
+    write(fd[WRITE], &dirSize, sizeof(long int)); /* sending final directory size to the pipe */
     sendPipe(dirSize); /* log sent data to pipe */
   }
+
   dirSize += (arguments.bytes) ? 4096 : arguments.system_block_size / arguments.block_size;
+
   if (level <= arguments.max_depth) {
     if (strcmp(path, directory)) {
       if (!strcmp(".", directory))
@@ -84,12 +91,14 @@ int fork_read(char* path, int level) {
       else
         path[strlen(path) - 1] = '\0';
     }
+    /* Printing info */
     char *toPrint;
     toPrint = (char*) malloc (BUFFER_SIZE * 2 * sizeof(char));
     sprintf(toPrint, "%ld\t%s\n", dirSize, path);
     write(STDOUT_FILENO, toPrint, strlen(toPrint));
     entry(toPrint);    /* log new entry registed */
     free(toPrint);
+    /*****************/
   }
 
   return dirSize;

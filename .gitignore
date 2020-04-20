@@ -131,4 +131,5 @@ local.properties
 # My Ignores
 
 **/TestDir/
-**/.idea
+**/.idea/
+**/cmake-build-debug/

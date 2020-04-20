@@ -28,8 +28,8 @@ int main(int argc, char** argv) {
     while (time < timeout) {
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, "Hi there");
-        usleep(500);
-        time += 500;
+        usleep(100000);
+        time += 100000;
     }
 
     exit(0);

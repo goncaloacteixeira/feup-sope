@@ -131,3 +131,4 @@ local.properties
 # My Ignores
 
 **/TestDir/
+**/.idea

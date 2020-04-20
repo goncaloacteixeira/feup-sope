@@ -2,14 +2,26 @@
 // Created by skidr on 20/04/2020.
 //
 
-#include "loggers.h"
+#include "utils.h"
 
 void log_message(pid_t tid, int i, int dur, int pl, char *oper) {
     char* message;
     message = (char*) malloc (128 * sizeof(char));
     time_t t = time(NULL);
 
-    /* inst ; i ; pid ; tid ; dur ; pl ; oper */
     sprintf(message, "%ld ; %d ; %d ; %d ; %d ; %d ; %s\n", t, i, getpid(), tid, dur, pl, oper);
     write(STDOUT_FILENO, message, strlen(message));
+}
+
+client_args_t parse_client_args(int argc, char **argv) {
+    client_args_t result;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp("-t", argv[i]) == 0)
+            result.seconds = atoi(argv[++i]);
+        else
+            result.server_fifo = argv[i];
+    }
+
+    return result;
 }

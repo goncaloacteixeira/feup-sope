@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -pthread
 DEPS = utils.h
 OBJ = utils.o
 TARGETS = client_U1

@@ -13,9 +13,11 @@ int server;
 void* thr_function(void* arg) {
     pid_t tid;
     tid = syscall(SYS_gettid);  /* pode ser detetado erro com clang mas compila sem erros */
+    ((message_t*) arg)->tid = tid;
+    ((message_t*) arg)->pid = getpid();
 
-    write(server, (request_t*) arg, sizeof(request_t));
-    log_message((int) tid, ((request_t*) arg)->id, ((request_t*) arg)->dur, -1, "IWANT");
+    write(server, (message_t *) arg, sizeof(message_t));
+    log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "IWANT");
     return NULL;
 }
 
@@ -41,7 +43,7 @@ int main(int argc, char** argv) {
 
     while (time < timeout) {
         pthread_t tid;
-        request_t request;
+        message_t request;
         request.dur = 10;
         request.id = request_id++;
 

@@ -42,7 +42,7 @@ void* thr_function(void* arg) {
     /* -> utilizar usleep ?
      *      usleep conta o tempo em microsecs
      *
-     * -> O cliente é responsável por emitir a mensagem de TIMEUP não o servidor:
+     * -> O servidor é responsável por emitir a mensagem de TIMEUP não o cliente:
      *      será que o tempo de espera fica no lado do servidor ou no lado do cliente?
      */
 

@@ -12,26 +12,41 @@
 #include "utils.h"
 
 void* thr_function(void* arg) {
-    message_t* request = (message_t*) arg;
     pid_t tid;
     tid = syscall(SYS_gettid);  /* pode ser detetado erro com clang mas compila sem erros */
 
+    message_t* request = (message_t*) arg;
+    /* pedido recebido */
+    log_message(request->id, getpid(), tid, request->dur, request->pl, "RECVD");
+
+    // TODO - Verificar se o cliente pode realmente entrar no WC (good Issue)
+
+    /* o cliente pode entrar no WC */
     log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
 
+    /* construir a string do caminho do fifo do cliente */
     char client_fifo[64];
     sprintf(client_fifo, "/tmp/%d.%d", request->pid, request->tid);
     int client = open(client_fifo, O_WRONLY);
 
     message_t reply;
-
     reply.id = request->id;
     reply.pid = getpid();
     reply.tid = tid;
     reply.pl = 1;
 
     write(client, &reply, sizeof(message_t));
-    close(client);
 
+    // TODO - Verificar o tempo de utilização do WC:
+
+    /* -> utilizar usleep ?
+     *      usleep conta o tempo em microsecs
+     *
+     * -> O cliente é responsável por emitir a mensagem de TIMEUP não o servidor:
+     *      será que o tempo de espera fica no lado do servidor ou no lado do cliente?
+     */
+
+    close(client);
     return NULL;
 }
 
@@ -56,10 +71,9 @@ int main(int argc, char** argv) {
     while (time < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && time < timeout) {
-            usleep(10000);
+            usleep(10000);  /* microsecs */
             time += 10000;
         }
-        log_message(request.id, request.pid, request.tid, request.dur, request.pl, "RECVD");
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
     }

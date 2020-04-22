@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        usleep(1000000);
+        usleep(1000000);    /* microsecs */
         time += 1000000;
     }
 

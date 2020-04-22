@@ -25,3 +25,22 @@ client_args_t parse_client_args(int argc, char **argv) {
 
     return result;
 }
+
+server_args_t parse_server_args(int argc, char **argv) {
+    server_args_t result;
+
+    result.nthreads = 0; result.nplaces = 0;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp("-t", argv[i]) == 0)
+            result.seconds = atoi(argv[++i]);
+        else if (strcmp("-l", argv[i]) == 0)
+            result.nplaces = atoi(argv[++i]);
+        else if (strcmp("-n", argv[i]) == 0)
+            result.nthreads = atoi(argv[++i]);
+        else
+            result.fifoname = argv[i];
+    }
+
+    return result;
+}

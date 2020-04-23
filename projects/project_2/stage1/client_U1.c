@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         printf("Usage: %s <-t nsec> <fifoname>\n", argv[0]);
         exit(1);
     }
-    client_args_t args = parse_client_args(argc, argv);
+    client_args_t args = parse_client_args(argv);
 
     do {
         server = open(args.server_fifo, O_WRONLY);
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        usleep(1000000);    /* microsecs */
+        sleep(1000000);    /* microsecs */
         time += 1000000;
     }
 

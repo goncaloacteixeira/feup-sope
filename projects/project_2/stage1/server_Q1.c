@@ -52,12 +52,12 @@ void* thr_function(void* arg) {
 
 
 int main(int argc, char** argv) {
-    if (argc < 4) {
+    if (argc != 4) {
         printf("--- SERVER 1 ---\n");
         printf("Usage: %s <-t nsec> <fifoname>\n", argv[0]);
         exit(1);
     }
-    server_args_t args = parse_server_args(argc, argv);
+    server_args_t args = parse_server_args(argv);
 
     if (mkfifo(args.fifoname, 0660) != 0) {
         printf("Error on mkfifo\n");

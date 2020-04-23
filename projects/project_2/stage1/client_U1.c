@@ -66,7 +66,9 @@ int main(int argc, char** argv) {
     while (time < timeout) {
         pthread_t tid;
         message_t request;
-        request.dur = 10;
+        /* a duração do pedido do cliente para utilizar 
+        a casa de banho será um valor entre 1s e 5s */
+        request.dur = (rand() % (5000000 - 1000000 + 1)) + 1000000; 
         request.id = request_id++;
         request.pl = -1;
 

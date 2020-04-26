@@ -37,14 +37,8 @@ void* thr_function(void* arg) {
 
     write(client, &reply, sizeof(message_t));
 
-    // TODO - Verificar o tempo de utilização do WC:
-
-    /* -> utilizar usleep ?
-     *      usleep conta o tempo em microsecs
-     *
-     * -> O servidor é responsável por emitir a mensagem de TIMEUP não o cliente:
-     *      será que o tempo de espera fica no lado do servidor ou no lado do cliente?
-     */
+    usleep(request->dur);
+    log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
 
     close(client);
     return NULL;

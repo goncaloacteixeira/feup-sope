@@ -67,13 +67,14 @@ int main(int argc, char** argv) {
         pthread_t tid;
         message_t request;
         /* a duração do pedido do cliente para utilizar 
-        a casa de banho será um valor entre 1s e 5s */
-        request.dur = (rand() % (5000000 - 1000000 + 1)) + 1000000; 
+        a casa de banho será um valor entre 1 e 5 milisegundos */
+        int microseconds = 1000;
+        request.dur = (rand() % ((5 * microseconds) - (1 * microseconds) + 1)) + (1 * microseconds); 
         request.id = request_id++;
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        sleep(1000000);    /* microsecs */
+        sleep(1);
         time += 1000000;
     }
 

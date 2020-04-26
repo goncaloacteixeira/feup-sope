@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     while (time < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && time < timeout) {
-            usleep(10000);  /* microsecs */
+            sleep(1);
             time += 10000;
         }
         pthread_t tid;

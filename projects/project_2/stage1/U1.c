@@ -11,6 +11,7 @@
 int server;
 struct timespec start;
 
+
 void* thr_function(void* arg) {
     pid_t tid;
     tid = syscall(SYS_gettid);  /* pode ser detetado erro com clang mas compila sem erros */

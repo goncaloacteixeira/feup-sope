@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include "utils.h"
 
+
 struct timespec start;
 
 void* thr_function(void* arg) {
@@ -31,6 +32,7 @@ void* thr_function(void* arg) {
 
     /* o cliente pode entrar no WC */
     log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+
     /* construir a string do caminho do fifo do cliente */
     char client_fifo[64];
     sprintf(client_fifo, "/tmp/%d.%d", request->pid, request->tid);
@@ -47,6 +49,7 @@ void* thr_function(void* arg) {
     /* client a utilizar o serviço do servidor */
     usleep(request->dur);
     /* registar evento (time up) */
+
     log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
 
     close(client);

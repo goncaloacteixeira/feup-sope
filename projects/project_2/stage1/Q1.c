@@ -13,6 +13,7 @@
 
 
 struct timespec start;
+long int timeout;
 
 void* thr_function(void* arg) {
     pid_t tid;
@@ -21,17 +22,6 @@ void* thr_function(void* arg) {
     message_t* request = (message_t*) arg;
     /* pedido recebido */
     log_message(request->id, getpid(), tid, request->dur, request->pl, "RECVD");
-
-    /*
-     * TODO
-     * O Cliente pode utilizar o serviço se o tempo de utilização não for superior ao tempo
-     * restante de execução do servidor.
-     * Utilizar uma variável global para monitorizar e uma função utilitária que conte o tempo
-     * restante em milliseconds.
-     */
-
-    /* o cliente pode entrar no WC */
-    log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
 
     /* construir a string do caminho do fifo do cliente */
     char client_fifo[64];
@@ -42,15 +32,26 @@ void* thr_function(void* arg) {
     reply.id = request->id;
     reply.pid = getpid();
     reply.tid = tid;
-    reply.pl = 1;
     reply.dur = request->dur;
 
-    write(client, &reply, sizeof(message_t));
-    /* client a utilizar o serviço do servidor */
-    usleep(request->dur);
-    /* registar evento (time up) */
+    /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
+     * considerando o tempo decorrido então pode entrar */
+    if (delta() + request->dur <= timeout) {
+        log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+        reply.pl = 1; /* TODO - a mudar para um id sequencial */
 
-    log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        write(client, &reply, sizeof(message_t));
+        /* client a utilizar o serviço do servidor */
+        usleep(request->dur * 1000);
+        /* registar evento (time up) */
+        log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+    }
+    /* caso contrário significa que o servidor vai fechar brevemente */
+    else {
+        log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
+        reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
+        write(client, &reply, sizeof(message_t));
+    }
 
     close(client);
     return NULL;
@@ -71,13 +72,13 @@ int main(int argc, char** argv) {
     }
     int fd = open(args.fifoname, O_RDONLY | O_NONBLOCK);
 
-    long int timeout = args.seconds * 1000;
+    timeout = args.seconds * 1000;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            sleep(1);
+            usleep(10000);
         }
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);

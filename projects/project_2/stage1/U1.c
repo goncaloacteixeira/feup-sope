@@ -30,20 +30,24 @@ void* thr_function(void* arg) {
     write(server, (message_t *) arg, sizeof(message_t));
     log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "IWANT");
 
+    /*
+     * TODO - Se já não for possivel obter uma resposta do servidor emitir o código "FAILD"
+     *      Possivelmente: Determinar se o fifo ainda está aberto em cada itereação do while
+     */
 
     message_t reply;
     while (read(client, &reply, sizeof(message_t)) <= 0) {
-        usleep(10000);
+        usleep(10000);  /* enquanto não tiver uma resposta do servidor */
     }
-
-    if (reply.pl != -1)
-        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, "IAMIN");
+    
+    log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
 
     close(client);
     unlink(client_fifo);
 
     return NULL;
 }
+
 
 int main(int argc, char** argv) {
     if (argc != 4) {
@@ -70,13 +74,15 @@ int main(int argc, char** argv) {
         message_t request;
         /* a duração do pedido do cliente para utilizar 
         a casa de banho será um valor entre 1 e 5 milisegundos */
-        int microseconds = 1000;
-        request.dur = (rand() % ((5 * microseconds) - (1 * microseconds) + 1)) + (1 * microseconds); 
+
+        /* o tempo aqui fica em ms para ser mais simples de verificar se o cliente ainda
+         * tem tempo para aceder ao servidor */
+        request.dur = (rand() % (5 - 1 + 1)) + 1;
         request.id = request_id++;
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        sleep(1);
+        usleep(100000);
     }
 
     exit(0);

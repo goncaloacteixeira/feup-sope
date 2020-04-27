@@ -3,4 +3,4 @@ project(project_2 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(project_2 client_U1.c utils.c utils.h server_Q1.c)
+add_executable(project_2 U1.c utils.c utils.h Q1.c)

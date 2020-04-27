@@ -33,3 +33,9 @@ server_args_t parse_server_args(char **argv) {
 
     return result;
 }
+
+double delta() {
+    struct timespec end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    return (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+}

@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <string.h>
 
+extern struct timespec start;
+
 typedef struct {
     int id;
     pid_t pid;
@@ -41,5 +43,8 @@ client_args_t parse_client_args(char** argv);
 
 /* -t <nsecs> <fifoname> */
 server_args_t parse_server_args(char** argv);
+
+/* calculates the time (ms) since the start of the program */
+double delta();
 
 #endif //PROJECT_2_UTILS_H

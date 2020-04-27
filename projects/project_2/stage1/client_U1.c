@@ -9,6 +9,7 @@
 #include "utils.h"
 
 int server;
+struct timespec start;
 
 void* thr_function(void* arg) {
     pid_t tid;
@@ -59,11 +60,11 @@ int main(int argc, char** argv) {
         }
     } while(server == -1);
 
-    long int timeout = args.seconds * 1000 * 1000;
-    long int time = 0;
+    long int timeout = args.seconds * 1000;
     int request_id = 0;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    while (time < timeout) {
+    while (delta() < timeout) {
         pthread_t tid;
         message_t request;
         /* a duração do pedido do cliente para utilizar 
@@ -75,7 +76,6 @@ int main(int argc, char** argv) {
 
         pthread_create(&tid, NULL, thr_function, &request);
         sleep(1);
-        time += 1000000;
     }
 
     exit(0);

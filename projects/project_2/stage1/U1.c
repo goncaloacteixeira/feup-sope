@@ -31,16 +31,20 @@ void* thr_function(void* arg) {
     log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "IWANT");
 
     /*
-     * TODO - Se já não for possivel obter uma resposta do servidor emitir o código "FAILD"
-     *      Possivelmente: Determinar se o fifo ainda está aberto em cada itereação do while
-     */
-
-    message_t reply;
-    while (read(client, &reply, sizeof(message_t)) <= 0) {
-        usleep(10000);  /* enquanto não tiver uma resposta do servidor */
+     * Solução que encontrei com base na tua sugestão - Parece-me a mais lógica
+     * Se tiver acesso, ou seja, se o fifo ainda existir, espera por uma resposta do servidor e ora a mensagem 
+     * de log é IAMIN ou CLOSD conforme conseguiu entrar ou não.
+     * Se não tiver acesso, emite o código FAILD
+    */
+    if(access(client_fifo, F_OK) != -1) {
+        message_t reply;
+        while (read(client, &reply, sizeof(message_t)) <= 0) {
+            usleep(10000);  /* enquanto não tiver uma resposta do servidor */
+        }
+        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
+    } else {
+         log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
     }
-    
-    log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
 
     close(client);
     unlink(client_fifo);

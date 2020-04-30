@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 
         /* o tempo aqui fica em ms para ser mais simples de verificar se o cliente ainda
          * tem tempo para aceder ao servidor */
-        request.dur = (rand() % (5 - 1 + 1)) + 1;
+        request.dur = (rand() % (100 - 20 + 1)) + 20;
         request.id = request_id++;
         request.pl = -1;
 

@@ -27,6 +27,23 @@ typedef struct {
 } client_args_t;
 ```
 
+- Criaçaõ de uma struct para armazenar as informações de um pedido ou de uma resposta
+
+```C
+typedef struct {
+    /* ID do pedido -> começa em zero */
+    int id;
+    /* process ID no pedido atual */
+    pid_t pid;
+    /* thread ID no pedido atual */
+    int tid;
+    /* duração do acesso ao servidor (pedido pelo cliente) em microseconds (para facilitar o uso de usleep) */
+    int dur;
+    /* posição atribuida pelo servidor ao cliente (-1 no pedido) */
+    int pl;
+} message_t ;
+```
+
 ## Funções
 
 - Criação de uma função responsável por registar as operações na stdout
@@ -35,13 +52,16 @@ typedef struct {
 void log_message(int i, pid_t pid, pid_t tid, int dur, int pl, char *oper);
 ```
 
-## Linhas de código relevantes
-
-- Geração de durações (pseudo)aleatórias para o acesso do cliente ao quarto de banho
+- Criação de um função responsável por devolver há quanto tempo o programa corre e assim verificar se já atingiu o final da execução
 
 ```C
-int microseconds = 1000;
-request.dur = (rand() % ((5 * microseconds) - (1 * microseconds) + 1)) + (1 * microseconds);
-``` 
+double delta();
+```
 
-Nota: A duração está a ser gerada em microsegundos uma vez que estamos a usar a função usleep.
+## Linhas de código relevantes
+
+- Geração de durações (pseudo)aleatórias para o acesso do cliente ao quarto de banho, em milisegundos
+
+```C
+request.dur = (rand() % (100 - 20 + 1)) + 20;
+``` 

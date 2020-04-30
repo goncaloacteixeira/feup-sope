@@ -18,13 +18,15 @@ typedef struct {
     char* server_fifo;
 } client_args_t;
 ```
-- Criação de uma struct para armazenar os argumentos passados pelo programa Q2
+- Criação de uma struct para armazenar os argumentos passados pelo programa Q1
 
 ```C
 typedef struct {
     int seconds;
-    char* server_fifo;
-} client_args_t;
+    int nplaces;  // 0 na primeira parte
+    int nthreads; // 0 na primeira parte
+    char* fifoname;
+} server_args_t;
 ```
 
 - Criaçaõ de uma struct para armazenar as informações de um pedido ou de uma resposta

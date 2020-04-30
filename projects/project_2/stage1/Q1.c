@@ -75,13 +75,20 @@ int main(int argc, char** argv) {
     timeout = args.seconds * 1000;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    while (delta() < timeout) {
+     while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
             usleep(10000);
         }
+        /* Esta linha verifica se o tempo já passou devido ao usleep
+         * assim evita ler duas vezes a mesma mensagem */
+        if (delta() >= timeout) break;
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
+        /* thread_join para esperar que a thread termine antes de sair
+         * assim todos os pedidos recebidos a tempo são processados de
+         * forma correta */
+        pthread_join(tid, NULL);
     }
 
     close(fd);

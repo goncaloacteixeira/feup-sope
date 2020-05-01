@@ -90,8 +90,7 @@ int main(int argc, char** argv) {
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        pthread_join(tid, NULL);
-        usleep(100000); /* pedidos com intervalo de 100ms */
+        usleep(50000); /* pedidos com intervalo de 50ms */
     }
 
     exit(0);

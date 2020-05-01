@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     server_args_t args = parse_server_args(argv);
 
     if (mkfifo(args.fifoname, 0660) != 0) {
-        printf("Error on mkfifo\n");
+        perror("Failed to create fifo: ");
         exit(1);
     }
     int fd = open(args.fifoname, O_RDONLY | O_NONBLOCK);

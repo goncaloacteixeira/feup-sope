@@ -23,7 +23,7 @@ void* thr_function(void* arg) {
     sprintf(client_fifo, "/tmp/%d.%d", getpid(), tid);
 
     if (mkfifo(client_fifo, 0660) != 0) {
-        printf("Error on mkfifo\n");
+        perror("Failed to create fifo: ");
         exit(1);
     }
     int client = open(client_fifo, O_RDONLY | O_NONBLOCK);
@@ -32,8 +32,14 @@ void* thr_function(void* arg) {
     log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "IWANT");
 
     signal(SIGPIPE, SIG_IGN);
-    if(access(server_path, F_OK) != -1) {
+    if (access(server_path, F_OK) != -1) {
         message_t reply;
+        /*
+         * A variável counter representa o numero de tentativas de leitura do servidor
+         * antes de considerar que o servidor já fechou. Depois de fechar será emitido
+         * um sinal de SIGPIPE que vai ser ignorado, voltado para o else, e dessa forma
+         * dado um output de "FAILD".
+         */
         int counter = 0;
         while (read(client, &reply, sizeof(message_t)) <= 0 && counter < 5) {
             usleep(10000);
@@ -41,7 +47,7 @@ void* thr_function(void* arg) {
         }
         log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
     } else {
-         log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
+        log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
     }
 
     close(client);
@@ -75,18 +81,17 @@ int main(int argc, char** argv) {
     while (delta() < timeout) {
         pthread_t tid;
         message_t request;
-        /* a duração do pedido do cliente para utilizar 
-        a casa de banho será um valor entre 1 e 5 milisegundos */
-
-        /* o tempo aqui fica em ms para ser mais simples de verificar se o cliente ainda
-         * tem tempo para aceder ao servidor */
+        /*
+         * a duração do pedido do cliente para utilizar
+         * a casa de banho será um valor entre 20 e 100 milissegundos
+         */
         request.dur = (rand() % (100 - 20 + 1)) + 20;
         request.id = request_id++;
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
         pthread_join(tid, NULL);
-        usleep(100000);
+        usleep(100000); /* pedidos com intervalo de 100ms */
     }
 
     exit(0);

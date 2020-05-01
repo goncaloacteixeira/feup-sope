@@ -23,7 +23,7 @@ void* thr_function(void* arg) {
     sprintf(client_fifo, "/tmp/%d.%d", getpid(), tid);
 
     if (mkfifo(client_fifo, 0660) != 0) {
-        printf("Error on mkfifo\n");
+        perror("Failed to create fifo: ");
         exit(1);
     }
     int client = open(client_fifo, O_RDONLY | O_NONBLOCK);

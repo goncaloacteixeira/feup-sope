@@ -21,8 +21,6 @@ Q1: $(OBJ)
 test: all
 	@echo "Starting Tests ..."
 	@touch result.log
-	@./test -q 1 -u 1 -f fifo.server | tee -a result.log
-	@echo "----------------------------"
 	@./test -q 2 -u 3 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
 	@./test -q 5 -u 5 -f fifo.server | tee -a result.log
@@ -30,6 +28,8 @@ test: all
 	@./test -q 2 -u 5 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
 	@./test -q 10 -u 10 -f fifo.server | tee -a result.log
+	@echo "----------------------------"
+	@./test -q 5 -u 10 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
 	@./test -q 10 -u 5 -f fifo.server | tee -a result.log
 	@echo "----------------------------"

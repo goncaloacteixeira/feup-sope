@@ -25,5 +25,5 @@ jobs:
       - uses: actions/checkout@v2
       - name: make
         run: cd projects/project_2/stage1/ && make
-      - name: example for server time to 10s and client to 15s
-        run: cd projects/project_2/stage1/ && (./Q1 -t 10 fifo.server & ./U1 -t 15 fifo.server)
+      - name: example for server time to 2s and client to 3s
+        run: cd projects/project_2/stage1/ && (./Q1 -t 2 fifo.server & ./U1 -t 3 fifo.server)

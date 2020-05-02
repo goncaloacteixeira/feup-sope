@@ -4,6 +4,10 @@
 
 # usage|help|info: ./test -q <server timeout> -u <client timeout> -f <server fifo>
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 # default values
 serverTime=10
 clientTime=15
@@ -62,15 +66,15 @@ if [ $? -eq 0 ] ; then
   echo "Requests sent: $nREQST"
 
   if  [ $n2LATE -eq $nCLOSD ] ; then
-    echo "[PASSED] 2LATE - too late requests: $n2LATE"
+    echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
   else
-    echo "[FAILED] 2LATE"
+    echo -e "${RED}[FAILED] ${NC}2LATE"
   fi
 
   if  [ $nIAMIN -eq $nENTER ] ; then
-    echo "[PASSED] ENTER - accepted requests: $nENTER"
+    echo -e "${GREEN}[PASSED] ${NC}ENTER - accepted requests: $nENTER"
   else
-    echo "[FAILED] ENTER"
+    echo -e "${RED}[FAILED] ${NC}ENTER"
   fi
 
   echo "Failed requests: $nFAILD"
@@ -81,5 +85,5 @@ if [ $? -eq 0 ] ; then
   rm -rf logs
   make clean
 else
-  echo "MAKE ERROR";
+  echo -e "${RED}MAKE ERROR";
 fi

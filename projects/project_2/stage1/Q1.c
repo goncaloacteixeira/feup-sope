@@ -37,11 +37,13 @@ void* thr_function(void* arg) {
     /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
      * considerando o tempo decorrido então pode entrar */
     if (delta() + request->dur <= timeout) {
-        log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
         reply.pl = 1; /* TODO - a mudar para um id sequencial */
 
         if (access(client_fifo, F_OK) != -1) {
             write(client, &reply, sizeof(message_t));
+
+            log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+
             /* client a utilizar o serviço do servidor */
             usleep(request->dur * 1000);
             /* registar evento (time up) */
@@ -50,7 +52,6 @@ void* thr_function(void* arg) {
         else {
             log_message(request->id, getpid(), tid, request->dur, 1, "GAVUP");
         }
-
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
@@ -89,14 +90,16 @@ int main(int argc, char** argv) {
      while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            usleep(10000);
+            usleep(1000);
         }
         /* Esta linha verifica se o tempo já passou devido ao usleep
          * assim evita ler duas vezes a mesma mensagem */
         if (delta() >= timeout) break;
+
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
-    }
+        pthread_detach(tid); /* detach para maior paralelismo */
+     }
 
     close(fd);
     unlink(args.fifoname);

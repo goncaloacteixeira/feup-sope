@@ -20,7 +20,8 @@ Q1: $(OBJ)
 
 test: all
 	@echo "Starting Tests ..."
-	@./test -q 1 -u 1 -f fifo.server | tee result.log
+	@touch result.log
+	@./test -q 1 -u 1 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
 	@./test -q 2 -u 3 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
@@ -39,8 +40,9 @@ test: all
 	@./test -q 70 -u 80 -f fifo.server | tee -a result.log
 	@echo "----------------------------"
 
-	@echo "\033[1;32mTests PASSED:" $(shell grep "PASSED" result.log | wc -l);
-	@echo "\033[1;31mTests FAILED:" $(shell grep "FAILED" result.log | wc -l);
+
+	@echo "\033[1;32mTests PASSED:" `grep "PASSED" result.log | wc -l`;
+	@echo "\033[1;31mTests FAILED:" `grep "FAILED" result.log | wc -l`;
 
 	@rm result.log
 	@make -s clean

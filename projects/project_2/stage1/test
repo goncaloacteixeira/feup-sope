@@ -4,8 +4,8 @@
 
 # usage|help|info: ./test -q <server timeout> -u <client timeout> -f <server fifo>
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
+RED='\033[1;31m'
+GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
 # default values
@@ -64,26 +64,37 @@ if [ $? -eq 0 ] ; then
   nENTER=`grep ENTER q1.log | wc -l`
 
   echo "Requests sent: $nREQST"
+  echo "Failed requests: $nFAILD"
+
+  valid1=0;
+  valid2=0;
 
   if  [ $n2LATE -eq $nCLOSD ] ; then
     echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
+    valid1=1;
   else
     echo -e "${RED}[FAILED] ${NC}2LATE"
   fi
 
   if  [ $nIAMIN -eq $nENTER ] ; then
     echo -e "${GREEN}[PASSED] ${NC}ENTER - accepted requests: $nENTER"
+    valid2=1;
   else
     echo -e "${RED}[FAILED] ${NC}ENTER"
   fi
 
-  echo "Failed requests: $nFAILD"
-
   cd ..
-
   # comment this line if you wish to keep the log files (debugging purposes)
   rm -rf logs
   make clean
+
+  if [[ $valid1 -eq 1 && $valid2 -eq 1 ]] ; then
+    exit 0;
+  else
+    exit 1;
+  fi
+
 else
   echo -e "${RED}MAKE ERROR";
+  exit 1;
 fi

@@ -37,20 +37,32 @@ void* thr_function(void* arg) {
     /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
      * considerando o tempo decorrido então pode entrar */
     if (delta() + request->dur <= timeout) {
-        log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
         reply.pl = 1; /* TODO - a mudar para um id sequencial */
 
-        write(client, &reply, sizeof(message_t));
-        /* client a utilizar o serviço do servidor */
-        usleep(request->dur * 1000);
-        /* registar evento (time up) */
-        log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        if (access(client_fifo, F_OK) != -1) {
+            write(client, &reply, sizeof(message_t));
+
+            log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+
+            /* client a utilizar o serviço do servidor */
+            usleep(request->dur * 1000);
+            /* registar evento (time up) */
+            log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        }
+        else {
+            log_message(request->id, getpid(), tid, request->dur, 1, "GAVUP");
+        }
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
-        log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
-        reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
-        write(client, &reply, sizeof(message_t));
+        if (access(client_fifo, F_OK) != -1) {
+            log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
+            reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
+            write(client, &reply, sizeof(message_t));
+        }
+        else {
+            log_message(request->id, getpid(), tid, request->dur, -1, "GAVUP");
+        }
     }
 
     close(client);
@@ -78,14 +90,16 @@ int main(int argc, char** argv) {
      while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            usleep(10000);
+            usleep(1000);
         }
         /* Esta linha verifica se o tempo já passou devido ao usleep
          * assim evita ler duas vezes a mesma mensagem */
         if (delta() >= timeout) break;
+
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
-    }
+        pthread_detach(tid); /* detach para maior paralelismo */
+     }
 
     close(fd);
     unlink(args.fifoname);

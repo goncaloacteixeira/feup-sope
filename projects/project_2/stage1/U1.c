@@ -45,7 +45,10 @@ void* thr_function(void* arg) {
             usleep(10000);
             counter++;
         }
-        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
+        if (counter < 5)
+            log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
+        else
+            log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
     } else {
         log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
     }
@@ -92,7 +95,7 @@ int main(int argc, char** argv) {
         pthread_create(&tid, NULL, thr_function, &request);
         pthread_detach(tid); /* detach para maior paralelismo */
 
-        usleep(20000); /* pedidos com intervalo de 20ms */
+        usleep(50000); /* pedidos com intervalo de 20ms */
     }
 
     exit(0);

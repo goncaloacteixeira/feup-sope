@@ -35,36 +35,25 @@ void* thr_function(void* arg) {
     reply.tid = tid;
     reply.dur = request->dur;
 
-    signal(SIGPIPE, SIG_IGN);
     /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
      * considerando o tempo decorrido então pode entrar */
-    if (delta() + request->dur <= timeout) {
+    if (delta() + request->dur < timeout) {
         reply.pl = 1; /* TODO - a mudar para um id sequencial */
 
-        if (access(client_fifo, F_OK) != -1) {
-            write(client, &reply, sizeof(message_t));
+        write(client, &reply, sizeof(message_t));
 
-            log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+        log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
 
-            /* client a utilizar o serviço do servidor */
-            usleep(request->dur * 1000);
-            /* registar evento (time up) */
-            log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
-        }
-        else {
-            log_message(request->id, getpid(), tid, request->dur, 1, "GAVUP");
-        }
+        /* client a utilizar o serviço do servidor */
+        usleep(request->dur * 1000);
+        /* registar evento (time up) */
+        log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
-        if (access(client_fifo, F_OK) != -1) {
-            log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
-            reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
-            write(client, &reply, sizeof(message_t));
-        }
-        else {
-            log_message(request->id, getpid(), tid, request->dur, -1, "GAVUP");
-        }
+        log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
+        reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
+        write(client, &reply, sizeof(message_t));
     }
 
     close(client);
@@ -92,8 +81,9 @@ int main(int argc, char** argv) {
      while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            usleep(1000);
+            usleep(10000);
         }
+
         /* Esta linha verifica se o tempo já passou devido ao usleep
          * assim evita ler duas vezes a mesma mensagem */
         if (delta() >= timeout) break;

@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build and test:
 
     runs-on: ubuntu-latest
 
@@ -17,3 +17,13 @@ jobs:
       run: cd projects/project_2/stage1/ && make
     - name: make test
       run: cd projects/project_2/stage1/ && make test
+  
+  example:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: make
+        run: cd projects/project_2/stage1/ && make
+      - name: example for server time to 10s and client to 15s
+        run: cd projects/project_2/stage1/ && (./Q1 -t 10 fifo.server & ./U1 -t 15 fifo.server)

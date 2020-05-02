@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
         pthread_create(&tid, NULL, thr_function, &request);
         pthread_detach(tid); /* detach para maior paralelismo */
 
-        usleep(50000); /* pedidos com intervalo de 20ms */
+        usleep(50000); /* pedidos com intervalo de 50ms */
     }
 
     exit(0);

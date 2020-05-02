@@ -29,72 +29,55 @@ while getopts ":q:u:f:" opt; do
   esac
 done
 
-echo "╔══════════════════════════╗"
-echo "║       RUNNING TESTS      ║"
-echo "╚══════════════════════════╝"
+mkdir logs
+echo "Setting server timeout to "$serverTime"sec"
+echo "Setting client timeout to "$clientTime"sec"
+echo "SERVER/CLIENT RUNNING ..."
 
-# $? = 0 se compilou bem
-# $? = 2 otherwise
+./Q1 -t $serverTime "$fifoname" > logs/q1.log 2> logs/q1.err &  # Un <-t nsecs> fifoname
+P1=$!
+./U1 -t $clientTime "$fifoname" > logs/u1.log 2> logs/u1.err &   # Qn <-t nsecs> [-l nplaces] [-n nthreads] fifoname
+P2=$!
+wait $P1 $P2
+echo "END OF SERVER/CLIENT"
 
-echo "Compiling U1 and Q1 ..."
-make &> /dev/null
+cd logs || exit
 
-if [ $? -eq 0 ] ; then
-  mkdir logs
-  echo "Setting server timeout to "$serverTime"sec"
-  echo "Setting client timeout to "$clientTime"sec"
-  echo "SERVER/CLIENT RUNNING ..."
+nREQST=`grep IWANT u1.log | wc -l`
+nFAILD=`grep FAILD u1.log | wc -l`
 
-  ./Q1 -t $serverTime "$fifoname" > logs/q1.log 2> logs/q1.err &  # Un <-t nsecs> fifoname
-  P1=$!
-  ./U1 -t $clientTime "$fifoname" > logs/u1.log 2> logs/u1.err &   # Qn <-t nsecs> [-l nplaces] [-n nthreads] fifoname
-  P2=$!
-  wait $P1 $P2
-  echo "END OF SERVER/CLIENT"
+n2LATE=`grep 2LATE q1.log | wc -l`
+nCLOSD=`grep CLOSD u1.log | wc -l`
 
-  cd logs || exit
+nIAMIN=`grep IAMIN u1.log | wc -l`
+nENTER=`grep ENTER q1.log | wc -l`
 
-  nREQST=`grep IWANT u1.log | wc -l`
-  nFAILD=`grep FAILD u1.log | wc -l`
+echo "Requests sent: $nREQST"
+echo "Failed requests: $nFAILD"
 
-  n2LATE=`grep 2LATE q1.log | wc -l`
-  nCLOSD=`grep CLOSD u1.log | wc -l`
+valid1=0;
+valid2=0;
 
-  nIAMIN=`grep IAMIN u1.log | wc -l`
-  nENTER=`grep ENTER q1.log | wc -l`
-
-  echo "Requests sent: $nREQST"
-  echo "Failed requests: $nFAILD"
-
-  valid1=0;
-  valid2=0;
-
-  if  [ $n2LATE -eq $nCLOSD ] ; then
-    echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
-    valid1=1;
-  else
-    echo -e "${RED}[FAILED] ${NC}2LATE"
-  fi
-
-  if  [ $nIAMIN -eq $nENTER ] ; then
-    echo -e "${GREEN}[PASSED] ${NC}ENTER - accepted requests: $nENTER"
-    valid2=1;
-  else
-    echo -e "${RED}[FAILED] ${NC}ENTER"
-  fi
-
-  cd ..
-  # comment this line if you wish to keep the log files (debugging purposes)
-  rm -rf logs
-  make clean
-
-  if [[ $valid1 -eq 1 && $valid2 -eq 1 ]] ; then
-    exit 0;
-  else
-    exit 1;
-  fi
-
+if  [ $n2LATE -eq $nCLOSD ] ; then
+  echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
+  valid1=1;
 else
-  echo -e "${RED}MAKE ERROR";
+  echo -e "${RED}[FAILED] ${NC}2LATE"
+fi
+
+if  [ $nIAMIN -eq $nENTER ] ; then
+  echo -e "${GREEN}[PASSED] ${NC}ENTER - accepted requests: $nENTER"
+  valid2=1;
+else
+  echo -e "${RED}[FAILED] ${NC}ENTER"
+fi
+
+cd ..
+# comment this line if you wish to keep the log files (debugging purposes)
+rm -rf logs
+
+if [[ $valid1 -eq 1 && $valid2 -eq 1 ]] ; then
+  exit 0;
+else
   exit 1;
 fi

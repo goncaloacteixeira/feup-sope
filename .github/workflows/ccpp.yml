@@ -16,4 +16,4 @@ jobs:
     - name: make
       run: cd projects/project_2/stage1/ && make
     - name: make test
-      run: make test
+      run: cd projects/project_2/stage1/ && make test

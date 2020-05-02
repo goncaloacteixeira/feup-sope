@@ -40,17 +40,28 @@ void* thr_function(void* arg) {
         log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
         reply.pl = 1; /* TODO - a mudar para um id sequencial */
 
-        write(client, &reply, sizeof(message_t));
-        /* client a utilizar o serviço do servidor */
-        usleep(request->dur * 1000);
-        /* registar evento (time up) */
-        log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        if (access(client_fifo, F_OK) != -1) {
+            write(client, &reply, sizeof(message_t));
+            /* client a utilizar o serviço do servidor */
+            usleep(request->dur * 1000);
+            /* registar evento (time up) */
+            log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        }
+        else {
+            log_message(request->id, getpid(), tid, request->dur, 1, "GAVUP");
+        }
+
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
-        log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
-        reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
-        write(client, &reply, sizeof(message_t));
+        if (access(client_fifo, F_OK) != -1) {
+            log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
+            reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
+            write(client, &reply, sizeof(message_t));
+        }
+        else {
+            log_message(request->id, getpid(), tid, request->dur, -1, "GAVUP");
+        }
     }
 
     close(client);

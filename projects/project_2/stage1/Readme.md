@@ -8,6 +8,10 @@ Trabalho realizado por:
 
 De seguida, mencionam-se os pormenores de implementação que consideramos mais importantes.
 
+## Modo de Aceitação de Pedidos
+- Entendemos que para esta etapa fizesse sentido que os pedidos apenas fossem aceites caso a duração de utilização requisitada não ultrapassasse o tempo restante de execução do servidor.
+- Deste modo todos os pedidos que não cumpram este requisito serão considerados como pedidos feitos demasiado tarde (o servidor vai fechar brevemente) e portanto receberão um sinal "2LATE".
+
 ## Detalhes da Implementação
 
 - Os pedidos de acesso são enviados pelo cliente num programa multithread com intervalos de `50 ms`;

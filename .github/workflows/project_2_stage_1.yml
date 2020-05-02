@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Project 2 - WC Server/Client - Stage 1
 
 on:
   push:

@@ -8,6 +8,13 @@ Trabalho realizado por:
 
 De seguida, mencionam-se os pormenores de implementação que consideramos mais importantes.
 
+## Detalhes da Implementação
+
+- Os pedidos de acesso são enviados pelo cliente num programa multithread com intervalos de `50 ms`;
+- Os pedidos são recebidos pelo servidor que cria uma thread nova para lidar com o pedido, e caso o tempo de utilização pedido for igual ou inferior ao tempo restante de execução do servidor então é aceite, caso contrário é rejeitado com uma mensagem de `2LATE`.
+- Depois do servidor ter fechado, caso o cliente ainda esteja em execução todos os pedidos vão ficar sem resposta efetiva do servidor, emitindo um `FAILD`. O servidor executa o `unlink` do FIFO público portanto basta verificar se o FIFO está acessível, e caso não esteja temos a certeza que o servidor fechou.
+- Deixamos o lugar atribuido pelo servidor ao pedido do cliente a `1` isto porque achamos que seria irrelevante para a primeira etapa, uma vez que dispomos de um número de lugares livres infinito ou indeterminado.
+
 ## Structs
 
 - Criação de uma struct para armazenar os argumentos passados pelo programa U1
@@ -66,4 +73,4 @@ double delta();
 
 ```C
 request.dur = (rand() % (100 - 20 + 1)) + 20;
-``` 
+```

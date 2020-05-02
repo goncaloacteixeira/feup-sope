@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <pthread.h>
+#include <signal.h>
 #include "utils.h"
 
 
@@ -34,6 +35,7 @@ void* thr_function(void* arg) {
     reply.tid = tid;
     reply.dur = request->dur;
 
+    signal(SIGPIPE, SIG_IGN);
     /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
      * considerando o tempo decorrido então pode entrar */
     if (delta() + request->dur <= timeout) {

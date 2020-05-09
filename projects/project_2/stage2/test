@@ -52,6 +52,7 @@ nCLOSD=`grep CLOSD u2.log | wc -l`
 
 nIAMIN=`grep IAMIN u2.log | wc -l`
 nENTER=`grep ENTER q2.log | wc -l`
+nTIMUP=`grep TIMUP q2.log | wc -l`
 
 echo "Requests sent: $nREQST"
 echo "Failed requests: $nFAILD"
@@ -59,6 +60,7 @@ echo "Gave up requests: $nGAVUP"
 
 valid1=0;
 valid2=0;
+valid3=0;
 
 if  [ $n2LATE -eq $nCLOSD ] ; then
   echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
@@ -74,11 +76,18 @@ else
   echo -e "${RED}[FAILED] ${NC}ENTER"
 fi
 
+if  [ $nTIMUP -eq $nENTER ] ; then
+  echo -e "${GREEN}[PASSED] ${NC}TIMEUP - fulfilled requests: $nTIMUP"
+  valid3=1;
+else
+  echo -e "${RED}[FAILED] ${NC}TIMEUP"
+fi
+
 cd ..
 # comment this line if you wish to keep the log files (debugging purposes)
 #rm -rf logs
 
-if [[ $valid1 -eq 1 && $valid2 -eq 1 ]] ; then
+if [[ $valid1 -eq 1 && $valid2 -eq 1 && $valir3 -eq 1 ]] ; then
   exit 0;
 else
   exit 1;

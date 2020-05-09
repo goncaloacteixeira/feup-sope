@@ -21,7 +21,7 @@ typedef struct {
     /* process ID no pedido atual */
     pid_t pid;
     /* thread ID no pedido atual */
-    int tid;
+    pthread_t tid;
     /* duração do acesso ao servidor (pedido pelo cliente) em microseconds (para facilitar o uso de usleep) */
     int dur;
     /* posição atribuida pelo servidor ao cliente (-1 no pedido) */
@@ -41,7 +41,7 @@ typedef struct {
 } server_args_t;
 
 /* inst ; i ; pid ; tid ; dur ; pl ; oper */
-void log_message(int i, pid_t pid, pid_t tid, int dur, int pl, char *oper);
+void log_message(int i, pid_t pid, pthread_t tid, int dur, int pl, char *oper);
 
 /* -t <time> <fifoname> */
 client_args_t parse_client_args(char** argv);

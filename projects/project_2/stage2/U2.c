@@ -14,13 +14,14 @@ struct timespec start;
 char * server_path;
 
 void* thr_function(void* arg) {
-    pid_t tid;
-    tid = syscall(SYS_gettid);  /* pode ser detetado erro com clang mas compila sem erros */
+    pthread_t tid;
+    tid = pthread_self();
+
     ((message_t*) arg)->tid = tid;
     ((message_t*) arg)->pid = getpid();
 
     char client_fifo[64];
-    sprintf(client_fifo, "/tmp/%d.%d", getpid(), tid);
+    sprintf(client_fifo, "/tmp/%d.%ld", getpid(), tid);
 
     if (mkfifo(client_fifo, 0660) != 0) {
         perror("Failed to create fifo: ");

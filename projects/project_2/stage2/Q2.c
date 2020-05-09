@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
 
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
-        // pthread_detach(tid); /* detach para maior paralelismo */
      }
 
     close(fd);

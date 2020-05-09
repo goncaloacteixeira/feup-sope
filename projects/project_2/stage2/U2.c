@@ -15,7 +15,7 @@ char * server_path;
 
 void* thr_function(void* arg) {
     pthread_t tid;
-    tid = pthread_self();
+    pthread_detach(tid = pthread_self());
 
     ((message_t*) arg)->tid = tid;
     ((message_t*) arg)->pid = getpid();
@@ -94,7 +94,6 @@ int main(int argc, char** argv) {
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
-        pthread_detach(tid); /* detach para maior paralelismo */
 
         usleep(50000); /* pedidos com intervalo de 50ms */
     }

@@ -76,9 +76,9 @@ int main(int argc, char** argv) {
         message_t request;
         /*
          * a duração do pedido do cliente para utilizar
-         * a casa de banho será um valor entre 20 e 40 milissegundos
+         * a casa de banho será um valor entre 20 e 200 milissegundos
          */
-        request.dur = (rand() % (40 - 20 + 1)) + 20;
+        request.dur = (rand() % (200 - 20 + 1)) + 20;
         request.id = request_id++;
         request.pl = -1;
 

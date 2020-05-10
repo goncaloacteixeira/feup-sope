@@ -8,8 +8,11 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include "utils.h"
 
+static int thread_limited = 0;
+sem_t nthreads;
 
 struct timespec start;
 long int timeout;
@@ -54,6 +57,7 @@ void* thr_function(void* arg) {
         write(client, &reply, sizeof(message_t));
     }
 
+    if (thread_limited) { sem_post(&nthreads); }
     close(client);
     return NULL;
 }
@@ -73,22 +77,25 @@ int main(int argc, char** argv) {
     }
     int fd = open(args.fifoname, O_RDONLY | O_NONBLOCK);
 
+    // semaphore creation
+    if (args.nthreads) { thread_limited = 1; }
+    sem_init(&nthreads, 0, args.nthreads);
+
     timeout = args.seconds * 1000;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-     while (delta() < timeout) {
+    while (delta() < timeout) {
         message_t request;
-        while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            usleep(1000);
-        }
-
+        while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) { usleep(1000); }
         /* Esta linha verifica se o tempo já passou devido ao usleep
          * assim evita ler duas vezes a mesma mensagem */
         if (delta() >= timeout) break;
 
+        if (thread_limited) { sem_wait(&nthreads); }
+
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
-     }
+    }
 
     close(fd);
     unlink(args.fifoname);

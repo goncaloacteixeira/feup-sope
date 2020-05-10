@@ -2,7 +2,7 @@
 
 # Adapted from André Daniel Gomes's Test script
 
-# usage|help|info: ./test -q <server timeout> -u <client timeout> -f <server fifo>
+# usage|help|info: ./test -q <server timeout> -u <client timeout> -f <server fifo> -n <nthreads> -l <nplaces>
 
 RED='\033[1;31m'
 GREEN='\033[1;32m'
@@ -12,12 +12,16 @@ NC='\033[0m' # No Color
 serverTime=10
 clientTime=15
 fifoname='fifo.server'
+nthreads=0
+nplaces=0
 
-while getopts ":q:u:f:" opt; do
+while getopts ":q:u:f:n:l:" opt; do
   case $opt in
     q) serverTime=$OPTARG;;
     u) clientTime=$OPTARG;;
     f) fifoname=$OPTARG;;
+    n) nthreads=$OPTARG;;
+    l) nplaces=$OPTARG;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
       exit 1
@@ -32,13 +36,15 @@ done
 mkdir logs
 echo "Setting server timeout to "$serverTime"sec"
 echo "Setting client timeout to "$clientTime"sec"
+echo "Setting max threads to "$nthreads""
+echo "Setting max places to "$nplaces""
 echo "SERVER/CLIENT RUNNING ..."
 
-./Q2 -t $serverTime "$fifoname" > logs/q2.log 2> logs/q2.err &  # Un <-t nsecs> fifoname
+./Q2 -t $serverTime -n "$nthreads" -l "$nplaces" "$fifoname" > logs/q2.log 2> logs/q2.err &  # Un <-t nsecs> fifoname
 P1=$!
 ./U2 -t $clientTime "$fifoname" > logs/u2.log 2> logs/u2.err &   # Qn <-t nsecs> [-l nplaces] [-n nthreads] fifoname
 P2=$!
-wait $P1 $P2
+wait
 echo "END OF SERVER/CLIENT"
 
 cd logs || exit
@@ -66,21 +72,21 @@ if  [ $n2LATE -eq $nCLOSD ] ; then
   echo -e "${GREEN}[PASSED] ${NC}2LATE - too late requests: $n2LATE"
   valid1=1;
 else
-  echo -e "${RED}[FAILED] ${NC}2LATE"
+  echo -e "${RED}[FAILED] ${NC}2LATE - 2LATE=$n2LATE | CLOSD=$nCLOSD "
 fi
 
 if  [ $nIAMIN -eq $nENTER ] ; then
   echo -e "${GREEN}[PASSED] ${NC}ENTER - accepted requests: $nENTER"
   valid2=1;
 else
-  echo -e "${RED}[FAILED] ${NC}ENTER"
+  echo -e "${RED}[FAILED] ${NC}ENTER - IAMIN=$nIAMIN | ENTER=$nENTER"
 fi
 
 if  [ $nTIMUP -eq $nENTER ] ; then
   echo -e "${GREEN}[PASSED] ${NC}TIMEUP - fulfilled requests: $nTIMUP"
   valid3=1;
 else
-  echo -e "${RED}[FAILED] ${NC}TIMEUP"
+  echo -e "${RED}[FAILED] ${NC}TIMEUP - TIMUP=$nTIMUP | ENTER=$nENTER"
 fi
 
 cd ..

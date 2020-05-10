@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -53,7 +52,7 @@ void* thr_function(void* arg) {
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        printf("--- CLIENT 1 ---\n");
+        printf("--- CLIENT 2 ---\n");
         printf("Usage: %s <-t nsec> <fifoname>\n", argv[0]);
         exit(1);
     }

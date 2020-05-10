@@ -60,9 +60,9 @@ void* thr_function(void* arg) {
 
 
 int main(int argc, char** argv) {
-    if (argc != 4) {
-        printf("--- SERVER 1 ---\n");
-        printf("Usage: %s <-t nsec> <fifoname>\n", argv[0]);
+    if (argc < 4 || argc > 8) {
+        printf("--- SERVER 2 ---\n");
+        printf("Usage: %s <-t nsec> <-l nplaces> <-t nthreads> <fifoname>\n", argv[0]);
         exit(1);
     }
     server_args_t args = parse_server_args(argc, argv);
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
      while (delta() < timeout) {
         message_t request;
         while (read(fd, &request, sizeof(message_t)) <= 0 && delta() < timeout) {
-            usleep(10000);
+            usleep(1000);
         }
 
         /* Esta linha verifica se o tempo já passou devido ao usleep

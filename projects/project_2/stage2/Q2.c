@@ -1,7 +1,6 @@
 //
 // Created by skidr on 22/04/2020.
 //
-#include <sys/syscall.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,7 +8,6 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <pthread.h>
-#include <signal.h>
 #include "utils.h"
 
 
@@ -17,8 +15,8 @@ struct timespec start;
 long int timeout;
 
 void* thr_function(void* arg) {
-    pid_t tid;
-    tid = syscall(SYS_gettid);  /* pode ser detetado erro com clang mas compila sem erros */
+    pthread_t tid;
+    pthread_detach(tid = pthread_self());
 
     message_t* request = (message_t*) arg;
     /* pedido recebido */
@@ -26,7 +24,7 @@ void* thr_function(void* arg) {
 
     /* construir a string do caminho do fifo do cliente */
     char client_fifo[64];
-    sprintf(client_fifo, "/tmp/%d.%d", request->pid, request->tid);
+    sprintf(client_fifo, "/tmp/%d.%ld", request->pid, request->tid);
     int client = open(client_fifo, O_WRONLY);
 
     message_t reply;
@@ -42,16 +40,16 @@ void* thr_function(void* arg) {
 
         write(client, &reply, sizeof(message_t));
 
-        log_message(request->id, getpid(), tid, request->dur, 1, "ENTER");
+        log_message(reply.id, getpid(), tid, reply.dur, 1, "ENTER");
 
         /* client a utilizar o serviço do servidor */
-        usleep(request->dur * 1000);
+        usleep(reply.dur * 1000);
         /* registar evento (time up) */
-        log_message(request->id, getpid(), tid, request->dur, 1, "TIMUP");
+        log_message(reply.id, getpid(), tid, reply.dur, 1, "TIMUP");
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
-        log_message(request->id, getpid(), tid, request->dur, -1, "2LATE");
+        log_message(reply.id, getpid(), tid, reply.dur, -1, "2LATE");
         reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
         write(client, &reply, sizeof(message_t));
     }
@@ -90,7 +88,6 @@ int main(int argc, char** argv) {
 
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);
-        pthread_detach(tid); /* detach para maior paralelismo */
      }
 
     close(fd);

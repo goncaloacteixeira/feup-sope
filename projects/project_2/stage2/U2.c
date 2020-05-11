@@ -23,12 +23,12 @@ void* thr_function(void* arg) {
     char client_fifo[64];
     sprintf(client_fifo, "/tmp/%d.%ld", getpid(), tid);
 
-    if (mkfifo(client_fifo, 0666) != 0) {
+    if (mkfifo(client_fifo, 0660) != 0) {
         perror("Failed to create fifo");
         exit(1);
     }
 
-    write(server, &request, sizeof(message_t));
+    write(server, &request, sizeof(message_t)); // TODO - lidar com erros no write (assumir um FAILD)
 
     /* abrir o fifo do cliente em read mode para que o servidor consiga abrir em write mode */
     int client;
@@ -47,6 +47,8 @@ void* thr_function(void* arg) {
 
     int counter = 0;
     message_t reply;
+    /* o cliente tem 20 tentativas para receber uma resposta do servidor
+     * (de forma a tolerar atrasos e permitir a execução com uma única thread */
     while (read(client, &reply, sizeof(message_t)) <= 0 && counter < 20) {
         usleep(1000);
         counter++;
@@ -100,7 +102,7 @@ int main(int argc, char** argv) {
 
         pthread_create(&tid, NULL, thr_function, &request);
 
-        usleep(50000); /* pedidos com intervalo de 50ms */
+        usleep(40000); /* pedidos com intervalo de 40ms */
     }
 
 

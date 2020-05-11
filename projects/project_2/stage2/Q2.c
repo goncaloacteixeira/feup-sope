@@ -11,8 +11,8 @@
 #include <semaphore.h>
 #include "utils.h"
 
-static int thread_limited = 0;
-sem_t nthreads;
+static int thread_limited = 0;  /* flag to be set if the number of concurrent threads is limited */
+sem_t nthreads; /* semaphore to deal with the number of concurrent threads active */
 
 struct timespec start;
 long int timeout;
@@ -53,21 +53,20 @@ void* thr_function(void* arg) {
         if (write(client, &reply, sizeof(message_t)) < 0) {
             fprintf(stderr, "Error to private fifo with request %d (ACCEPTED)\n", request.id);
             log_message(reply.id, reply.pid, reply.tid, reply.dur, reply.pl, "GAVUP");
+
             close(client); /* nao há mais comunicação com o fifo privado */
 
-            // sync
-            if (thread_limited) { sem_post(&nthreads); }
+            if (thread_limited) { sem_post(&nthreads); } /* sync threads */
             return NULL;
         }
         close(client); /* nao há mais comunicação com o fifo privado */
-        reply.pl = 1; // TODO - Atribuir lugares realistas (sequenciais se não houver limite)
 
+        reply.pl = 1; // TODO - Atribuir lugares realistas (sequenciais se não houver limite)
         log_message(reply.id, getpid(), tid, reply.dur, reply.pl, "ENTER");
 
-        /* client a utilizar o serviço do servidor */
-        usleep(reply.dur * 1000);
+        usleep(reply.dur * 1000); /* client a utilizar o serviço do servidor */
 
-        /* registar evento (time up) */
+        /* o tempo de utilização acabou */
         log_message(reply.id, getpid(), tid, reply.dur, reply.pl, "TIMUP");
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
@@ -78,15 +77,14 @@ void* thr_function(void* arg) {
             log_message(reply.id, reply.pid, reply.tid, reply.dur, reply.pl, "GAVUP");
             close(client); /* nao há mais comunicação com o fifo privado */
 
-            // sync
-            if (thread_limited) { sem_post(&nthreads); }
+            if (thread_limited) { sem_post(&nthreads); } /* sync threads */
             return NULL;
         }
         log_message(reply.id, getpid(), tid, reply.dur, -1, "2LATE");
     }
 
-    if (thread_limited) { sem_post(&nthreads); }
-    close(client);
+    if (thread_limited) { sem_post(&nthreads); } /* sync threads */
+    close(client);  /* nao há mais comunicação com o fifo privado */
     return NULL;
 }
 
@@ -105,9 +103,11 @@ int main(int argc, char** argv) {
     }
     int fd = open(args.fifoname, O_RDONLY | O_NONBLOCK);
 
-    // semaphore creation
+    /************ THREAD SYNC INIT ************/
     if (args.nthreads) { thread_limited = 1; }
     sem_init(&nthreads, 0, args.nthreads);
+    // TODO - Implementar o sistema de lugares
+    /******************************************/
 
     timeout = args.seconds * 1000;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
          * assim evita ler duas vezes a mesma mensagem */
         if (delta() >= timeout) break;
 
-        if (thread_limited) { sem_wait(&nthreads); }
+        if (thread_limited) { sem_wait(&nthreads); } /* sync threads */
 
         pthread_t tid;
         pthread_create(&tid, NULL, thr_function, &request);

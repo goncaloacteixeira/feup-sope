@@ -4,13 +4,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#include <signal.h>
 
 #include "utils.h"
 
 int server;
 struct timespec start;
-char * server_path;
 
 void* thr_function(void* arg) {
     pthread_t tid;
@@ -25,27 +23,46 @@ void* thr_function(void* arg) {
     char client_fifo[64];
     sprintf(client_fifo, "/tmp/%d.%ld", getpid(), tid);
 
-    if (mkfifo(client_fifo, 0660) != 0) {
-        perror("Failed to create fifo: ");
+    if (mkfifo(client_fifo, 0666) != 0) {
+        perror("Failed to create fifo");
         exit(1);
     }
-    int client = open(client_fifo, O_RDONLY | O_NONBLOCK);
 
     write(server, &request, sizeof(message_t));
-    log_message(request.id, request.pid, request.tid, request.dur, request.pl, "IWANT");
 
-    signal(SIGPIPE, SIG_IGN);
-    if (access(server_path, F_OK) != -1) {
-        message_t reply;
-        while (read(client, &reply, sizeof(message_t)) <= 0) { usleep(1000); }
-        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
-    } else {
+    /* abrir o fifo do cliente em read mode para que o servidor consiga abrir em write mode */
+    int client;
+    if ((client = open(client_fifo, O_RDONLY)) < 0) {
+        char* error = (char*) malloc (128 * sizeof(char));
+        sprintf(error, "Cannot open private FIFO id: %d for reading", request.id);
+        perror(error);
+        free(error);
         log_message(request.id, request.pid, request.tid, request.dur, request.pl, "FAILD");
+
+        if (unlink(client_fifo) < 0) { perror("Unable to unlink private fifo"); }
+        return NULL;
     }
 
-    close(client);
-    unlink(client_fifo);
+    log_message(request.id, request.pid, request.tid, request.dur, request.pl, "IWANT");
 
+    int counter = 0;
+    message_t reply;
+    while (read(client, &reply, sizeof(message_t)) <= 0 && counter < 20) {
+        usleep(1000);
+        counter++;
+    }
+    /* caso o numero de tentativas seja excedido assume-se que um erro */
+    if (counter == 20) {
+        log_message(request.id, request.pid, request.tid, request.dur, request.pl, "FAILD");
+        close(client);
+        if (unlink(client_fifo) < 0) { perror("Error unlinking client fifo"); }
+        return NULL;
+    }
+    /* o campo 'pl' será -1 caso o servidor não tenha tempo suficiente para processar o pedido */
+    log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl == -1) ? "CLOSD" : "IAMIN");
+
+    if (unlink(client_fifo) < 0) { perror("Error unlinking client fifo"); }
+    close(client);
     return NULL;
 }
 
@@ -57,7 +74,6 @@ int main(int argc, char** argv) {
         exit(1);
     }
     client_args_t args = parse_client_args(argv);
-    server_path = args.server_fifo;
 
     do {
         server = open(args.server_fifo, O_WRONLY);
@@ -76,16 +92,17 @@ int main(int argc, char** argv) {
         message_t request;
         /*
          * a duração do pedido do cliente para utilizar
-         * a casa de banho será um valor entre 20 e 200 milissegundos
+         * a casa de banho será um valor entre 20 e 100 milissegundos
          */
-        request.dur = (rand() % (200 - 20 + 1)) + 20;
+        request.dur = (rand() % (100 - 20 + 1)) + 20;
         request.id = request_id++;
         request.pl = -1;
 
         pthread_create(&tid, NULL, thr_function, &request);
 
-        usleep(20000); /* pedidos com intervalo de 20ms */
+        usleep(50000); /* pedidos com intervalo de 50ms */
     }
+
 
     exit(0);
 }

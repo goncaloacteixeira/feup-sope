@@ -21,40 +21,68 @@ void* thr_function(void* arg) {
     pthread_t tid;
     pthread_detach(tid = pthread_self());
 
-    message_t* request = (message_t*) arg;
+    message_t request;
+    memcpy(&request, ((message_t*) arg), sizeof(message_t));
+
     /* pedido recebido */
-    log_message(request->id, getpid(), tid, request->dur, request->pl, "RECVD");
+    log_message(request.id, getpid(), tid, request.dur, request.pl, "RECVD");
 
     /* construir a string do caminho do fifo do cliente */
-    char client_fifo[64];
-    sprintf(client_fifo, "/tmp/%d.%ld", request->pid, request->tid);
-    int client = open(client_fifo, O_WRONLY);
+    char client_fifo[128];
+    sprintf(client_fifo, "/tmp/%d.%ld", request.pid, request.tid);
+
+    int client;
+    if ((client = open(client_fifo, O_WRONLY)) < 0) {
+        fprintf(stderr, "Error opening private fifo with request %d\n", request.id);
+        log_message(request.id, getpid(), tid, request.dur, request.pl, "GAVUP");
+
+        if (thread_limited) { sem_post(&nthreads); }
+        return NULL;
+    }
 
     message_t reply;
-    reply.id = request->id;
+    reply.id = request.id;
     reply.pid = getpid();
     reply.tid = tid;
-    reply.dur = request->dur;
+    reply.dur = request.dur;
+    reply.pl = 1;
 
     /* caso o tempo que quer utilizar não ultrapassa o tempo de execução
      * considerando o tempo decorrido então pode entrar */
-    if (delta() + request->dur < timeout) {
-        reply.pl = 1; /* TODO - a mudar para um id sequencial */
+    if (delta() + request.dur < timeout) {
+        if (write(client, &reply, sizeof(message_t)) < 0) {
+            fprintf(stderr, "Error to private fifo with request %d (ACCEPTED)\n", request.id);
+            log_message(reply.id, reply.pid, reply.tid, reply.dur, reply.pl, "GAVUP");
+            close(client); /* nao há mais comunicação com o fifo privado */
 
-        write(client, &reply, sizeof(message_t));
+            // sync
+            if (thread_limited) { sem_post(&nthreads); }
+            return NULL;
+        }
+        close(client); /* nao há mais comunicação com o fifo privado */
+        reply.pl = 1; // TODO - Atribuir lugares realistas (sequenciais se não houver limite)
 
-        log_message(reply.id, getpid(), tid, reply.dur, 1, "ENTER");
+        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, "ENTER");
 
         /* client a utilizar o serviço do servidor */
         usleep(reply.dur * 1000);
+
         /* registar evento (time up) */
-        log_message(reply.id, getpid(), tid, reply.dur, 1, "TIMUP");
+        log_message(reply.id, getpid(), tid, reply.dur, reply.pl, "TIMUP");
     }
     /* caso contrário significa que o servidor vai fechar brevemente */
     else {
-        log_message(reply.id, getpid(), tid, reply.dur, -1, "2LATE");
         reply.pl = -1; /* o -1 vai ser entendido pelo cliente como o encerramento do WC */
-        write(client, &reply, sizeof(message_t));
+        if (write(client, &reply, sizeof(message_t)) < 0) {
+            fprintf(stderr, "Error to private fifo with request %d (DENIED)\n", request.id);
+            log_message(reply.id, reply.pid, reply.tid, reply.dur, reply.pl, "GAVUP");
+            close(client); /* nao há mais comunicação com o fifo privado */
+
+            // sync
+            if (thread_limited) { sem_post(&nthreads); }
+            return NULL;
+        }
+        log_message(reply.id, getpid(), tid, reply.dur, -1, "2LATE");
     }
 
     if (thread_limited) { sem_post(&nthreads); }
@@ -98,7 +126,9 @@ int main(int argc, char** argv) {
     }
 
     close(fd);
-    unlink(args.fifoname);
+    if (unlink(args.fifoname) < 0) {
+        perror("Error unlinking public FIFO");
+    }
 
     exit(0);
 }

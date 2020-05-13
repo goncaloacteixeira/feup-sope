@@ -56,7 +56,7 @@ void* thr_function(void* arg) {
 
     /*************************** ATRIBUIR O LUGAR AO PEDIDO ********************************
      * Caso o número de lugares seja ilimitado o servidor atribui 1 a todos os pedidos.    *
-     * caso o número de lugares seja limutado o servidor atribui o proximo lugar na fila.  *
+     * caso o número de lugares seja limitado o servidor atribui o proximo lugar na fila.  *
      ***************************************************************************************/
     int place = 1;
     if (places_limited) {

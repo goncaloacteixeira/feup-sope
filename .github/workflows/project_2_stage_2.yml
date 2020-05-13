@@ -26,4 +26,4 @@ jobs:
       - name: make
         run: cd projects/project_2/stage2/ && make
       - name: server time to 2s and client to 3s | nplaces to 4 and pthreads to 10
-        run: cd projects/project_2/stage2/ && (./Q1 -t 2 -n 4 -l 10 fifo.server & ./U1 -t 3 fifo.server)
+        run: cd projects/project_2/stage2/ && (./Q2 -t 2 -n 4 -l 10 fifo.server & ./U2 -t 3 fifo.server)

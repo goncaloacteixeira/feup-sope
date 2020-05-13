@@ -1,74 +1,81 @@
 #include <stdio.h>
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#include <signal.h>
 
 #include "utils.h"
 
 int server;
 struct timespec start;
-char * server_path;
 
 void* thr_function(void* arg) {
     pthread_t tid;
     pthread_detach(tid = pthread_self());
 
-    ((message_t*) arg)->tid = tid;
-    ((message_t*) arg)->pid = getpid();
+    message_t request;
+    memcpy(&request, ((message_t*) arg), sizeof(message_t));
+
+    request.tid = tid;
+    request.pid = getpid();
 
     char client_fifo[64];
     sprintf(client_fifo, "/tmp/%d.%ld", getpid(), tid);
 
     if (mkfifo(client_fifo, 0660) != 0) {
-        perror("Failed to create fifo: ");
+        perror("Failed to create fifo");
         exit(1);
     }
-    int client = open(client_fifo, O_RDONLY | O_NONBLOCK);
 
-    write(server, (message_t *) arg, sizeof(message_t));
-    log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "IWANT");
+    write(server, &request, sizeof(message_t)); // TODO - lidar com erros no write (assumir um FAILD)
 
-    signal(SIGPIPE, SIG_IGN);
-    if (access(server_path, F_OK) != -1) {
-        message_t reply;
-        /*
-         * A variável counter representa o numero de tentativas de leitura do servidor
-         * antes de considerar que o servidor já fechou. Depois de fechar será emitido
-         * um sinal de SIGPIPE que vai ser ignorado, voltado para o else, e dessa forma
-         * dado um output de "FAILD".
-         */
-        int counter = 0;
-        while (read(client, &reply, sizeof(message_t)) <= 0 && counter < 5) {
-            usleep(10000);
-            counter++;
-        }
-        if (counter < 5)
-            log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl != -1) ? "IAMIN" : "CLOSD");
-        else
-            log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
-    } else {
-        log_message(((message_t*) arg)->id, ((message_t*) arg)->pid, ((message_t*) arg)->tid, ((message_t*) arg)->dur, ((message_t*) arg)->pl, "FAILD");
+    /* abrir o fifo do cliente em read mode para que o servidor consiga abrir em write mode */
+    int client;
+    if ((client = open(client_fifo, O_RDONLY)) < 0) {
+        char* error = (char*) malloc (128 * sizeof(char));
+        sprintf(error, "Cannot open private FIFO id: %d for reading", request.id);
+        perror(error);
+        free(error);
+        log_message(request.id, request.pid, request.tid, request.dur, request.pl, "FAILD");
+
+        if (unlink(client_fifo) < 0) { perror("Unable to unlink private fifo"); }
+        return NULL;
     }
 
-    close(client);
-    unlink(client_fifo);
+    log_message(request.id, request.pid, request.tid, request.dur, request.pl, "IWANT");
 
+    int counter = 0;
+    message_t reply;
+    /* o cliente tem 20 tentativas para receber uma resposta do servidor
+     * (de forma a tolerar atrasos e permitir a execução com uma única thread */
+    while (read(client, &reply, sizeof(message_t)) <= 0 && counter < 20) {
+        usleep(1000);
+        counter++;
+    }
+    /* caso o numero de tentativas seja excedido assume-se que um erro */
+    if (counter == 20) {
+        log_message(request.id, request.pid, request.tid, request.dur, request.pl, "FAILD");
+        close(client);
+        if (unlink(client_fifo) < 0) { perror("Error unlinking client fifo"); }
+        return NULL;
+    }
+    /* o campo 'pl' será -1 caso o servidor não tenha tempo suficiente para processar o pedido */
+    log_message(reply.id, getpid(), tid, reply.dur, reply.pl, (reply.pl == -1) ? "CLOSD" : "IAMIN");
+
+    if (unlink(client_fifo) < 0) { perror("Error unlinking client fifo"); }
+    close(client);
     return NULL;
 }
 
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        printf("--- CLIENT 1 ---\n");
+        printf("--- CLIENT 2 ---\n");
         printf("Usage: %s <-t nsec> <fifoname>\n", argv[0]);
         exit(1);
     }
     client_args_t args = parse_client_args(argv);
-    server_path = args.server_fifo;
 
     do {
         server = open(args.server_fifo, O_WRONLY);
@@ -95,8 +102,9 @@ int main(int argc, char** argv) {
 
         pthread_create(&tid, NULL, thr_function, &request);
 
-        usleep(50000); /* pedidos com intervalo de 50ms */
+        usleep(40000); /* pedidos com intervalo de 40ms */
     }
+
 
     exit(0);
 }

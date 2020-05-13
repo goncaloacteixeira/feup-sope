@@ -11,6 +11,7 @@ void log_message(int i, pid_t pid, pthread_t tid, int dur, int pl, char *oper) {
 
     sprintf(message, "%ld ; %d ; %d ; %ld ; %d ; %d ; %s\n", t, i, pid, tid, dur, pl, oper);
     write(STDOUT_FILENO, message, strlen(message));
+    free(message);
 }
 
 client_args_t parse_client_args(char **argv) {

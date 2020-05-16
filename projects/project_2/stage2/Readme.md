@@ -25,7 +25,7 @@ O que significa que todos os pedidos rejeitados serão marcados como "2LATE".
 - Lugares atribuídos:
 
   - caso o servidor não tenha limitações no número de lugares (i.e. lugares infinitos), todos os pedidos aceites terão o lugar atribuído igual a `1`, sabemos de início que existem sempre lugares, então ao colocar o lugar igual a `1` sabemos que o cliente foi aceite e que há pelo menos um lugar disponível, independente do número de pedidos a serem processados.
-  - caso o servidor tenha limitações no número de lugares, o lugar X, caso esteja ocupado não poderá ser utilizado enquando não for libertado. Outra conclusão que podemos tirar é que no máximo estarão a ser utilizados N lugares (cenário realísta). A forma como determinamos qual lugar utilizar será explicada na secção seguinte.
+  - caso o servidor tenha limitações no número de lugares, o lugar X, caso esteja ocupado não poderá ser utilizado enquando não for libertado. Outra conclusão que podemos tirar é que no máximo estarão a ser utilizados N lugares (cenário realista). A forma como determinamos qual lugar utilizar será explicada na secção seguinte.
 - Limitação do número de threads por processo
 
   - Utilizamos semáforos iniciados com o número máximo de threads por processo passado por argumento no programa do servidor. A sincronização é facilmente obtida com `wait` e `post` sempre que alguma thread é criada e quando acaba, respetivamente.

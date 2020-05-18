@@ -1,0 +1,7 @@
+language: c
+compiler:
+  - gcc
+script:
+  - cd projects/project_2/stage2
+  - make
+  - make test

@@ -1,10 +1,11 @@
-language: c
 compiler:
   - gcc
 jobs:
   include:
-    - stage: "Project 2"
-    name: "Build and Test - Stage 1"
+    - name: "Build and Test - Stage 1"
+    language: C
     script: cd projects/project_2/stage1 && make && make test
-    - script: cd ../stage2 && make && make test
-    name: "Build and Test - Stage 2"
+    - name: "Build and Test - Stage 2"
+    language: C
+    script: cd ../stage2 && make && make test
+    

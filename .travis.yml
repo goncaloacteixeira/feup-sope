@@ -7,5 +7,5 @@ jobs:
     script: cd projects/project_2/stage1 && make && make test
     - name: "Build and Test - Stage 2"
     language: C
-    script: cd ../stage2 && make && make test
+    script: cd projects/project_2/stage2 && make && make test
     

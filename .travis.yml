@@ -5,6 +5,8 @@ language: C
 jobs:
   include:
     - name: "Project 2 - Stage 1"
-    script: cd projects/project_2/stage1 && make && make test
+    env: STAGE=stage1
     - name: "Project 2 - Stage 2"
-    script: cd projects/project_2/stage2 && make && make test
+    env: STAGE=stage2
+
+script: cd projects/project_2/$STAGE && make && make test

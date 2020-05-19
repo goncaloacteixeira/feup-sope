@@ -2,7 +2,7 @@ compiler: gcc
 
 language: C
 
-jobs:
+matrix:
   include:
     - name: "Build and Test - Stage 1"
     env: STAGE=stage1

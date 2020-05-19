@@ -1,6 +1,4 @@
-![Project 2 - WC Server/Client - Stage 1](https://github.com/skdGT/feup-sope/workflows/Project%202%20-%20WC%20Server/Client%20-%20Stage%201/badge.svg) ![Project 2 - WC Server/Client - Stage 2](https://github.com/skdGT/feup-sope/workflows/Project%202%20-%20WC%20Server/Client%20-%20Stage%202/badge.svg)
-
-# Operating Systems
+# Operating Systems ![travis](https://travis-ci.com/skdGT/feup-sope.svg?branch=master)
 
 Operating Systems Curricular Unit - 2019/2020
 

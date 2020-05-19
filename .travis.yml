@@ -1,11 +1,13 @@
-compiler:
-  - gcc
+compiler: gcc
+
+language: c
+
 jobs:
   include:
     - name: "Build and Test - Stage 1"
-    language: C
-    script: cd projects/project_2/stage1 && make && make test
+    env: STAGE=stage1
     - name: "Build and Test - Stage 2"
-    language: C
-    script: cd projects/project_2/stage2 && make && make test
+    env: STAGE=stage2
+    
+script: cd projects/project_2/$STAGE && make && make test
     

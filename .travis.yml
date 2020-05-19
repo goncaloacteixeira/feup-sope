@@ -1,12 +1,7 @@
 compiler: gcc
 
 language: C
-
-matrix:
-  include:
-    - name: "Build and Test - Stage 1"
-    env: STAGE=stage1
-    - name: "Build and Test - Stage 2"
-    env: STAGE=stage2
     
-script: cd projects/project_2/$STAGE && make && make test
+script: 
+  - cd projects/project_2/stage1 && make && make test
+  - cd projects/project_2/stage2 && make && make test

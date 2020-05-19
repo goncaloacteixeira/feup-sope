@@ -1,6 +1,6 @@
 compiler: gcc
 
-language: c
+language: C
 
 jobs:
   include:

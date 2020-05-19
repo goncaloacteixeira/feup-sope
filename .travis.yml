@@ -2,6 +2,8 @@ compiler: gcc
 
 language: C
     
-script: 
-  - cd projects/project_2/stage1 && make && make test
-  - cd projects/project_2/stage2 && make && make test
+jobs:
+  include:
+    - stage: test
+    script: cd projects/project_2/stage1 && make && make test
+    script: cd projects/project_2/stage2 && make && make test

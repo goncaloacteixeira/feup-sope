@@ -1,9 +1,12 @@
 compiler: gcc
 
 language: C
-    
-env: 
-  - STAGE=stage1
-  - STAGE=stage2
+
+jobs:
+  include:
+    - env: STAGE=stage1
+      name: "Project 2 - Stage 1"
+    - env: STAGE=stage2
+      name: "Project 2 - Stage 2"
 
 script: cd projects/project_2/$STAGE && make && make test
